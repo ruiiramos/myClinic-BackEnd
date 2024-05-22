@@ -3,6 +3,10 @@ const Paciente = db.paciente;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
+const { ErrorHandler } = require("../utils/error.js");
+const { JWTconfig } = require("../utils/config.js");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Display list of all pacientes
 exports.findAll = async (req, res) => {
@@ -56,5 +60,57 @@ exports.findOne = async (req, res) => {
                 error: err.message
             });
         }
+    }
+};
+
+exports.create = async (req, res) => {
+    try {
+        const { n_Utente, password, nome, dataNascimento, profissão } = req.body;
+        
+        if (!n_Utente || !password || !nome || !dataNascimento || !profissão)
+            throw new ErrorHandler(400, 'Todos os campos são obrigatórios.');
+
+        const paciente = await Paciente.find({ n_Utente: n_Utente });
+
+        if (paciente.length >= 1) {
+            return res.status(400).json({
+                message: "Utente já existe"
+            });
+        } else {
+            bcrypt.hash(password, 10, (err, hash) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: err
+                    });
+                } else {
+                    const newUser = {
+                        n_Utente: n_Utente,
+                        password: hash,
+                        nome: nome,
+                        dataNascimento: dataNascimento,
+                        profissão: profissão
+                    };
+                    User.create(newUser)
+                        .then(result => {
+                            console.log(result);
+                            res.status(201).json({
+                                message: "Utente criado"
+                            });
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).json({
+                                error: err
+                            });
+                        });
+                }
+            });
+        }
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message || 'Ocorreu um erro ao criar o utente.',
+            error: err.message
+        });
     }
 };

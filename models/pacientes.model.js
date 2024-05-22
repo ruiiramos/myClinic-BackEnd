@@ -6,17 +6,8 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         nome: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(50),
             allowNull: false,
-            validate: {
-                isWithinLength(value) {
-                    const maxLength = 50;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'nome' é de ${maxLength} caracteres.`);
-                    }
-                }
-            }
         },
         dataNascimento: {
             type: DataTypes.DATE,
@@ -30,43 +21,16 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         n_Utente: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(9),
             allowNull: false,
-            validate: {
-                isWithinLength(value) {
-                    const maxLength = 9;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'n_utente' é de ${maxLength} caracteres.`);
-                    }
-                }
-            }
         },
         profissão: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
-            validate: {
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'profissão' é de ${maxLength} caracteres.`);
-                    }
-                }
-            }
         },
         password: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
-            validate: {
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'password' é de ${maxLength} caracteres.`);
-                    }
-                }
-            }
         },
     },
     {

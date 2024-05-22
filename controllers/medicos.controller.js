@@ -3,6 +3,10 @@ const Medico = db.medico;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
+const { ErrorHandler } = require("../utils/error.js");
+const { JWTconfig } = require("../utils/config.js");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Display list of all medicos
 exports.findAll = async (req, res) => {
@@ -56,5 +60,55 @@ exports.findOne = async (req, res) => {
                 error: err.message
             });
         }
+    }
+};
+
+exports.create = async (req, res) => {
+    try {
+        const { cedula, password, nome_medico } = req.body;
+        
+        if (!cedula || !password || !nome_medico)
+            throw new ErrorHandler(400, 'Todos os campos são obrigatórios.');
+
+        const medico = await Medico.findOne({ where: { cedula: cedula } });
+
+        if (medico) {
+            return res.status(400).json({
+                message: "Médico já existe"
+            });
+        } else {
+            bcrypt.hash(password, 10, (err, hash) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: err
+                    });
+                } else {
+                    const newMedico = {
+                        cedula: cedula,
+                        password: hash,
+                        nome_medico: nome_medico,
+                    };
+                    Medico.create(newMedico)
+                        .then(result => {
+                            console.log(result);
+                            res.status(201).json({
+                                message: "Médico criado"
+                            });
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).json({
+                                error: err
+                            });
+                        });
+                }
+            });
+        }
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message || 'Ocorreu um erro ao criar o médico.',
+            error: err.message
+        });
     }
 };

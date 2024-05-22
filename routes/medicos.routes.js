@@ -10,4 +10,7 @@ router.route('/')
 router.route('/:id')
     .get(medicosController.findOne)
 
+router.route('/signup')
+    .post(medicosController.create)
+
 module.exports = router;

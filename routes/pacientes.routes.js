@@ -10,4 +10,7 @@ router.route('/')
 router.route('/:id')
     .get(pacientesController.findOne)
 
+router.route('/signup')
+    .post(pacientesController.create)
+
 module.exports = router;
