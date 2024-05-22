@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         hora: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
             validate: {
                 isHour(value) {
@@ -25,17 +25,10 @@ module.exports = (sequelize, DataTypes) => {
                         throw new Error('A hora deve estar no formato HH:MM.');
                     }
                 },
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'hora' é de ${maxLength} caracteres.`);
-                    }
-                }
             }
         },
         precoConsulta: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
             validate: {
                 isValidDecimal(value) {
@@ -43,13 +36,6 @@ module.exports = (sequelize, DataTypes) => {
                         throw new Error('O preço deve ser um número decimal válido com até duas casas decimais.');
                     }
                 },
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'precoConsulta' é de ${maxLength} caracteres.`);
-                    }
-                }
             },
         },
         id_Medicos: {

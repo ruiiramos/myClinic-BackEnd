@@ -17,20 +17,11 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         resultado: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
-            validate: {
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'resultado' é de ${maxLength} caracteres.`);
-                    }
-                }
-            },
         },
         precoAnalises: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
             validate: {
                 isValidDecimal(value) {
@@ -38,13 +29,6 @@ module.exports = (sequelize, DataTypes) => {
                         throw new Error('O preço deve ser um número decimal válido com até duas casas decimais.');
                     }
                 },
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'resultado' é de ${maxLength} caracteres.`);
-                    }
-                }
             },
         },
         id_Consulta: {

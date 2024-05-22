@@ -6,17 +6,8 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         nomeExame: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
-            validate: {
-                isWithinLength(value) {
-                    const maxLength = 100;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'nomeExame' é de ${maxLength} caracteres.`);
-                    }
-                }
-            },
         },
         data: {
             type: DataTypes.DATE,
@@ -30,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         hora: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
             validate: {
                 isHour(value) {
@@ -38,17 +29,10 @@ module.exports = (sequelize, DataTypes) => {
                         throw new Error('A hora deve estar no formato HH:MM.');
                     }
                 },
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'hora' é de ${maxLength} caracteres.`);
-                    }
-                }
             }
         },
         precoExame: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false,
             validate: {
                 isValidDecimal(value) {
@@ -56,13 +40,6 @@ module.exports = (sequelize, DataTypes) => {
                         throw new Error('O preço deve ser um número decimal válido com até duas casas decimais.');
                     }
                 },
-                isWithinLength(value) {
-                    const maxLength = 45;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'precoExame' é de ${maxLength} caracteres.`);
-                    }
-                }
             },
         },
         id_Consultas: {
