@@ -1,43 +1,35 @@
 module.exports = (sequelize, DataTypes) => {
-    const Medico = sequelize.define("Medico", {
-        id_Medico: {
-            type: DataTypes.INTEGER,
+    const medico = sequelize.define("medico", {
+        id_medico: {
+            type: DataTypes.INTEGER(11),
             primaryKey: true,
             autoIncrement: true
         },
         nome_medico: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
         cedula: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(50),
             allowNull: false,
-            validate: {
-                isWithinLength(value) {
-                    const maxLength = 4;
-        
-                    if (value.length > maxLength) {
-                        throw new Error(`O comprimento máximo para 'cedula' é de ${maxLength} caracteres.`);
-                    }
-                }
-            }
         },
         password: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING,
             allowNull: false,
         },
-        id_Especialidade: {
-            type: DataTypes.INTEGER,
+        id_especialidade: {
+            type: DataTypes.INTEGER(11),
             references: {
-                model: 'Especialidade',
-                key: 'id_Especialidade'
+                model: 'especialidade',
+                key: 'id_especialidade'
             }
         },
     },
     {
+        tableName: 'medico',
         timestamps: false
     }
     )
 
-    return Medico
+    return medico
 };
