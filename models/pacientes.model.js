@@ -1,42 +1,66 @@
 module.exports = (sequelize, DataTypes) => {
-    const Pacientes = sequelize.define("Pacientes", {
-        id_Paciente: {
-            type: DataTypes.INTEGER,
+    const paciente = sequelize.define("paciente", {
+        id_paciente: {
+            type: DataTypes.INTEGER(11),
             primaryKey: true,
             autoIncrement: true
         },
         nome: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
-        dataNascimento: {
+        data_nascimento: {
             type: DataTypes.DATE,
             allowNull: false,
             validate: {
                 isValidDate(value) {
-                    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                    const dateOnly = value.toISOString().split('T')[0];
+
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
                         throw new Error('A data deve estar no formato YYYY-MM-DD.');
                     }
                 }
             }
         },
-        n_Utente: {
-            type: DataTypes.STRING(9),
+        n_utente: {
+            type: DataTypes.STRING(50),
             allowNull: false,
         },
-        profissão: {
-            type: DataTypes.STRING(45),
+        profissao: {
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
         password: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING,
             allowNull: false,
+        },
+        id_genero: {
+            type: DataTypes.INTEGER(11),
+            references: {
+                model: 'genero',
+                key: 'id_genero'
+            }
+        },
+        cod_postal: {
+            type: DataTypes.INTEGER(10),
+            references: {
+                model: 'codigo_postal',
+                key: 'cod_postal'
+            }
+        },
+        id_sistema_saude: {
+            type: DataTypes.INTEGER(11),
+            references: {
+                model: 'sistema_de_saude',
+                key: 'id_sistema_saude'
+            }
         },
     },
     {
+        tableName: 'paciente',
         timestamps: false
     }
     )
 
-    return Pacientes
+    return paciente
 };

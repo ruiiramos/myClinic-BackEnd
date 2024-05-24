@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
-    const Consulta = sequelize.define("Consulta", {
-        id_Consulta: {
-            type: DataTypes.INTEGER,
+    const consulta = sequelize.define("consulta", {
+        id_consulta: {
+            type: DataTypes.INTEGER(11),
             primaryKey: true,
             autoIncrement: true
         },
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         hora: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.TIME,
             allowNull: false,
             validate: {
                 isHour(value) {
@@ -27,35 +27,29 @@ module.exports = (sequelize, DataTypes) => {
                 },
             }
         },
-        precoConsulta: {
-            type: DataTypes.STRING(45),
+        preco_consulta: {
+            type: DataTypes.DECIMAL(10,2),
             allowNull: false,
-            validate: {
-                isValidDecimal(value) {
-                    if (!/^\d+(\.\d{1,2})?$/.test(value)) {
-                        throw new Error('O preço deve ser um número decimal válido com até duas casas decimais.');
-                    }
-                },
-            },
         },
-        id_Medicos: {
-            type: DataTypes.INTEGER,
+        id_medico: {
+            type: DataTypes.INTEGER(11),
             references: {
-                model: 'Medicos',
-                key: 'id_Medico'
+                model: 'medico',
+                key: 'id_medico'
             }
         },
-        id_Pacientes: {
-            type: DataTypes.INTEGER,
+        id_paciente: {
+            type: DataTypes.INTEGER(11),
             references: {
-                model: 'Pacientes',
-                key: 'id_Paciente'
+                model: 'paciente',
+                key: 'id_paciente'
             }
         },
     },
     {
+        tableName: 'consulta',
         timestamps: false
     })
 
-    return Consulta
+    return consulta
 };

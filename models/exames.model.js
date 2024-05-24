@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
-    const Exame = sequelize.define("Exame", {
-        id_Exame: {
-            type: DataTypes.INTEGER,
+    const exame = sequelize.define("exame", {
+        id_exame: {
+            type: DataTypes.INTEGER(11),
             primaryKey: true,
             autoIncrement: true
         },
-        nomeExame: {
-            type: DataTypes.STRING(100),
+        nome_exame: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
         data: {
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         hora: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.TIME,
             allowNull: false,
             validate: {
                 isHour(value) {
@@ -31,36 +31,37 @@ module.exports = (sequelize, DataTypes) => {
                 },
             }
         },
-        precoExame: {
-            type: DataTypes.STRING(45),
+        preco_exame: {
+            type: DataTypes.DECIMAL(10,2),
             allowNull: false,
-            validate: {
-                isValidDecimal(value) {
-                    if (!/^\d+(\.\d{1,2})?$/.test(value)) {
-                        throw new Error('O preço deve ser um número decimal válido com até duas casas decimais.');
-                    }
-                },
-            },
         },
-        id_Consultas: {
+        id_consulta: {
             type: DataTypes.INTEGER,
             references: {
-                model: 'Consulta',
-                key: 'id_Consulta'
+                model: 'consulta',
+                key: 'id_consulta'
             }
         },
-        id_Especialidades: {
+        id_especialidade: {
             type: DataTypes.INTEGER,
             references: {
-                model: 'Especialidade',
-                key: 'id_Especialidade'
+                model: 'especialidade',
+                key: 'id_especialidade'
+            }
+        },
+        id_nome_exame: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: 'nome_exame',
+                key: 'id_exame'
             }
         },
     },
     {
+        tableName: 'exame',
         timestamps: false
     }
     )
 
-    return Exame
+    return exame
 };

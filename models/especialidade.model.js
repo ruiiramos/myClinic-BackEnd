@@ -1,17 +1,17 @@
 module.exports = (sequelize, DataTypes) => {
-    const Especialidade = sequelize.define("Especialidade", {
-        id_Especialidade: {
-            type: DataTypes.INTEGER,
+    const especialidade = sequelize.define("especialidade", {
+        id_especialidade: {
+            type: DataTypes.INTEGER(11),
             primaryKey: true,
             allowNull: false,
         },
-        Especialidade: {
-            type: DataTypes.STRING(50),
+        especialidade: {
+            type: DataTypes.STRING(100),
             allowNull: false,
         },
     }, {
-        tableName: 'Especialidade',
+        tableName: 'especialidade',
         timestamps: false
     });
-    return Especialidade;
+    return especialidade;
 };
