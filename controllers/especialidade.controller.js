@@ -1,5 +1,5 @@
 const db = require("../models/index.js");
-const Especialidade = db.especialidade;
+const especialidade = db.especialidade;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -7,7 +7,7 @@ const { Op, ValidationError } = require('sequelize');
 // Display list of all tutorials (with pagination)
 exports.findAll = async (req, res) => {
     try {
-        let especialidades = await Especialidade.findAll() 
+        let especialidades = await especialidade.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -29,12 +29,12 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const especialidade = await Especialidade.findByPk(id);
+        const especialidadeData = await especialidade.findByPk(id);
 
-        if (especialidade) {
+        if (especialidadeData) {
             return res.status(200).json({
                 success: true,
-                data: especialidade
+                data: especialidadeData
             });
         } else {
             return res.status(404).json({

@@ -1,17 +1,14 @@
 const db = require("../models/index.js")
-const Medico = db.medico;
+const medico = db.medico;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
-const { ErrorHandler } = require("../utils/error.js");
-const { JWTconfig } = require("../utils/config.js");
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 // Display list of all medicos
 exports.findAll = async (req, res) => {
     try {
-        let medicos = await Medico.findAll() 
+        let medicos = await medico.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -33,31 +30,31 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const medico = await Medico.findByPk(id);
+        const medicoData = await medico.findByPk(id);
 
-        if (medico) {
+        if (medicoData) {
             return res.status(200).json({
                 success: true,
-                data: medico
+                data: medicoData
             });
         } else {
             return res.status(404).json({
                 success: false,
-                message: 'Médico não encontrada.'
+                message: 'medico não encontrada.'
             });
         }
-    } catch (err) {
-        if (err instanceof ValidationError) {
+    } catch (error) {
+        if (error instanceof ValidationError) {
             return res.status(400).json({
                 success: false,
-                message: err.message || 'Erro de validação ao procurar o médico.',
-                error: err.errors
+                message: error.message || 'Erro de validação ao procurar a medico.',
+                error: error.errors
             });
         } else {
             return res.status(500).json({
                 success: false,
-                message: err.message || 'Ocorreu um erro ao procurar o médico.',
-                error: err.message
+                message: error.message || 'Ocorreu um erro ao procurar a medico.',
+                error: error.message
             });
         }
     }
@@ -68,11 +65,11 @@ exports.create = async (req, res) => {
         const { cedula, password, nome_medico } = req.body;
         
         if (!cedula || !password || !nome_medico)
-            throw new ErrorHandler(400, 'Todos os campos são obrigatórios.');
+            return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
-        const medico = await Medico.findOne({ where: { cedula: cedula } });
+        const medicoData = await medico.findOne({ where: { cedula: cedula } });
 
-        if (medico) {
+        if (medicoData) {
             return res.status(400).json({
                 message: "Médico já existe"
             });
@@ -88,7 +85,7 @@ exports.create = async (req, res) => {
                         password: hash,
                         nome_medico: nome_medico,
                     };
-                    Medico.create(newMedico)
+                    medico.create(newMedico)
                         .then(result => {
                             console.log(result);
                             res.status(201).json({

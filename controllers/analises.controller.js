@@ -1,5 +1,5 @@
 const db = require("../models/index.js")
-const Analise = db.analise;
+const analise = db.analise;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -7,7 +7,7 @@ const { Op, ValidationError } = require('sequelize');
 // Display list of all analises
 exports.findAll = async (req, res) => {
     try {
-        let analises = await Analise.findAll() 
+        let analises = await analise.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -29,12 +29,12 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const analise = await Analise.findByPk(id);
+        const analiseData = await analise.findByPk(id);
 
-        if (analise) {
+        if (analiseData) {
             return res.status(200).json({
                 success: true,
-                data: analise
+                data: analiseData
             });
         } else {
             return res.status(404).json({

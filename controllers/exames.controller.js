@@ -1,5 +1,5 @@
 const db = require("../models/index.js")
-const Exame = db.exame;
+const exame = db.exame;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -7,7 +7,7 @@ const { Op, ValidationError } = require('sequelize');
 // Display list of all exames
 exports.findAll = async (req, res) => {
     try {
-        let exames = await Exame.findAll() 
+        let exames = await exame.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -29,31 +29,31 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const exame = await Exame.findByPk(id);
+        const exameData = await exame.findByPk(id);
 
-        if (exame) {
+        if (exameData) {
             return res.status(200).json({
                 success: true,
-                data: exame
+                data: exameData
             });
         } else {
             return res.status(404).json({
                 success: false,
-                message: 'Exame não encontrado.'
+                message: 'exame não encontrada.'
             });
         }
-    } catch (err) {
-        if (err instanceof ValidationError) {
+    } catch (error) {
+        if (error instanceof ValidationError) {
             return res.status(400).json({
                 success: false,
-                message: err.message || 'Erro de validação ao procurar o exame.',
-                error: err.errors
+                message: error.message || 'Erro de validação ao procurar a exame.',
+                error: error.errors
             });
         } else {
             return res.status(500).json({
                 success: false,
-                message: err.message || 'Ocorreu um erro ao procurar o exame.',
-                error: err.message
+                message: error.message || 'Ocorreu um erro ao procurar a exame.',
+                error: error.message
             });
         }
     }
