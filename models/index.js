@@ -38,9 +38,27 @@ db.exame = require("./exames.model.js")(sequelize, DataTypes);
 db.medico = require("./medicos.model.js")(sequelize, DataTypes);
 //export PACIENTE model
 db.paciente = require("./pacientes.model.js")(sequelize, DataTypes);
+//export ADMIN model
+db.admin = require("./admin.model.js")(sequelize, DataTypes);
+//export CODPOSTAL model
+db.codigo_postal = require("./codPostal.model.js")(sequelize, DataTypes);
+//export CONTACTO model
+db.contacto = require("./contacto.model.js")(sequelize, DataTypes);
+//export PACIENTE model
+db.genero = require("./genero.model.js")(sequelize, DataTypes);
+//export PACIENTE model
+db.medicamento_prescricao = require("./medicamentoPrescricao.model.js")(sequelize, DataTypes);
+//export PACIENTE model
+db.medicamento = require("./medicamentos.model.js")(sequelize, DataTypes);
+//export PACIENTE model
+db.nome_exame = require("./nomeExame.model.js")(sequelize, DataTypes);
+//export PACIENTE model
+db.prescricao = require("./prescricao.model.js")(sequelize, DataTypes);
+//export PACIENTE model
+db.sistema_de_saude = require("./sistSaude.model.js")(sequelize, DataTypes);
 
 // // optionally: SYNC
- /* (async () => {
+   /* (async () => {
     try {
         // await sequelize.sync({ force: true }); // creates tables, dropping them first if they already existed
        await sequelize.sync({ alter: true }); // checks the tables in the database (which columns they have, what are their data types, etc.), and then performs the necessary changes to make then match the models
@@ -49,6 +67,6 @@ db.paciente = require("./pacientes.model.js")(sequelize, DataTypes);
     } catch (error) {
        console.log(error)
     }
- })(); */
-
+ })(); 
+ */
 module.exports = db;
