@@ -62,9 +62,9 @@ exports.findOne = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { cedula, password, nome_medico } = req.body;
+        const { cedula, password, nome_medico, id_especialidade } = req.body;
         
-        if (!cedula || !password || !nome_medico)
+        if (!cedula || !password || !nome_medico || !id_especialidade)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
         const medicoData = await medico.findOne({ where: { cedula: cedula } });
@@ -84,6 +84,7 @@ exports.create = async (req, res) => {
                         cedula: cedula,
                         password: hash,
                         nome_medico: nome_medico,
+                        id_especialidade: id_especialidade
                     };
                     medico.create(newMedico)
                         .then(result => {
@@ -108,4 +109,54 @@ exports.create = async (req, res) => {
             error: err.message
         });
     }
+};
+
+exports.login = (req, res, next) => {
+    const cedula = req.body.cedula;
+    const password = req.body.password;
+
+    medico.findOne({ cedula: cedula })
+        .then(medico => {
+            if (!medico) {
+                return res.status(401).json({
+                    message: "Authentication failed"
+                });
+            }
+
+            bcrypt.compare(password, medico.password, (err, result) => {
+                if (err) {
+                    return res.status(401).json({
+                        message: "Authentication failed"
+                    });
+                }
+
+                if (result) {
+                    const token = jwt.sign(
+                        {
+                            cedula: medico.cedula,
+                            userId: medico._id
+                        },
+                            process.env.JWT_KEY,
+                        {
+                            expiresIn: "1h"
+                        }
+                    );
+
+                    return res.status(200).json({
+                        message: "Authentication successful",
+                        token: token
+                    });
+                }
+
+                res.status(401).json({
+                    message: "Authentication failed"
+                });
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
 };

@@ -3,6 +3,7 @@ const paciente = db.paciente;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 // Display list of all pacientes
@@ -62,9 +63,9 @@ exports.findOne = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { n_utente, password, nome, data_nascimento, profissao } = req.body;
+        const { n_utente, password, nome, data_nascimento, profissao, id_genero, cod_postal, id_sistema_saude } = req.body;
         
-        if (!n_utente || !password || !nome || !data_nascimento || !profissao)
+        if (!n_utente || !password || !nome || !data_nascimento || !profissao || !id_genero || !cod_postal || !id_sistema_saude)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
         const pacienteData = await paciente.findOne({ where: { n_utente: n_utente } });
@@ -80,14 +81,17 @@ exports.create = async (req, res) => {
                         error: err
                     });
                 } else {
-                    const newPatient = {
+                    const newPaciente = {
                         n_utente: n_utente,
                         password: hash,
                         nome: nome,
                         data_nascimento: data_nascimento,
-                        profissao: profissao
+                        profissao: profissao,
+                        id_genero: id_genero,
+                        cod_postal: cod_postal,
+                        id_sistema_saude: id_sistema_saude
                     };
-                    paciente.create(newPatient)
+                    paciente.create(newPaciente)
                         .then(result => {
                             console.log(result);
                             res.status(201).json({
@@ -110,4 +114,54 @@ exports.create = async (req, res) => {
             error: err.message
         });
     }
+};
+
+exports.login = (req, res, next) => {
+    const n_utente = req.body.n_utente;
+    const password = req.body.password;
+
+    paciente.findOne({ n_utente: n_utente })
+        .then(paciente => {
+            if (!paciente) {
+                return res.status(401).json({
+                    message: "Authentication failed"
+                });
+            }
+
+            bcrypt.compare(password, paciente.password, (err, result) => {
+                if (err) {
+                    return res.status(401).json({
+                        message: "Authentication failed"
+                    });
+                }
+
+                if (result) {
+                    const token = jwt.sign(
+                        {
+                            n_utente: paciente.n_utente,
+                            userId: paciente._id
+                        },
+                            process.env.JWT_KEY,
+                        {
+                            expiresIn: "1h"
+                        }
+                    );
+
+                    return res.status(200).json({
+                        message: "Authentication successful",
+                        token: token
+                    });
+                }
+
+                res.status(401).json({
+                    message: "Authentication failed"
+                });
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
 };
