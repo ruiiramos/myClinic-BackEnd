@@ -1,5 +1,7 @@
 const db = require("../models/index.js")
-const consulta = db.consulta;
+const Consulta = db.consulta;
+const Exame = db.exame;
+const Analise = db.analise;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -7,7 +9,7 @@ const { Op, ValidationError } = require('sequelize');
 // Display list of all consultas
 exports.findAll = async (req, res) => {
     try {
-        let consultas = await consulta.findAll() 
+        let consultas = await Consulta.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -29,7 +31,7 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const consultaData = await consulta.findByPk(id);
+        const consultaData = await Consulta.findByPk(id);
 
         if (consultaData) {
             return res.status(200).json({
@@ -56,5 +58,30 @@ exports.findOne = async (req, res) => {
                 error: error.message
             });
         }
+    }
+};
+
+exports.findByPaciente = async (req, res) => {
+    try {
+        const id_paciente = req.params.id;
+        const consultas = await Consulta.findAll({where: { id_paciente: id_paciente }});
+
+        if (consultas && consultas.length > 0) {
+            return res.status(200).json({
+                success: true,
+                data: consultas
+            });
+        } else {
+            return res.status(404).json({
+                success: false,
+                message: `Nenhuma consulta encontrada para o paciente com ID ${id_paciente}.`
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Ocorreu um erro ao procurar as consultas.',
+            error: error.message
+        });
     }
 };
