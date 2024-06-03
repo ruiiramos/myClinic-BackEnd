@@ -14,6 +14,7 @@ router.route('/')
 router.route('/:id')
     .get(checkAuth, analisesController.findOne) // PROTECTED (user only)
     .patch(checkAuth, checkCurrent, analisesController.update) // PROTECTED (doctor only)
+    .delete(checkAuth, checkCurrent, analisesController.delete); // PROTECTED (doctor only)
 
 router.all('*', (req, res) => {
     res.status(404).json({ success: false, message: 'myClinic: what???' }); 
