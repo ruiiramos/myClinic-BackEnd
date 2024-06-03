@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 isValidDate(value) {
-                    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                    const dateOnly = value.toISOString().split('T')[0];
+
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
                         throw new Error('A data deve estar no formato YYYY-MM-DD.');
                     }
                 }

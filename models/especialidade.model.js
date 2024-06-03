@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         id_especialidade: {
             type: DataTypes.INTEGER(11),
             primaryKey: true,
-            allowNull: false,
+            autoIncrement: true,
         },
         especialidade: {
             type: DataTypes.STRING(100),

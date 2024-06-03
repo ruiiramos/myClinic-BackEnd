@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         cod_postal: {
-            type: DataTypes.INTEGER(10),
+            type: DataTypes.STRING(10),
             references: {
                 model: 'codigo_postal',
                 key: 'cod_postal'

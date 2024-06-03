@@ -5,16 +5,14 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        nome_exame: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
         data: {
             type: DataTypes.DATE,
             allowNull: false,
             validate: {
                 isValidDate(value) {
-                    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                    const dateOnly = value.toISOString().split('T')[0];
+
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
                         throw new Error('A data deve estar no formato YYYY-MM-DD.');
                     }
                 }
@@ -30,10 +28,6 @@ module.exports = (sequelize, DataTypes) => {
                     }
                 },
             }
-        },
-        preco_exame: {
-            type: DataTypes.DECIMAL(10,2),
-            allowNull: false,
         },
         id_consulta: {
             type: DataTypes.INTEGER,
