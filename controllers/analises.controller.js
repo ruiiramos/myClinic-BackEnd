@@ -1,5 +1,5 @@
 const db = require("../models/index.js")
-const analise = db.analise;
+const Analise = db.analise;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -7,7 +7,7 @@ const { Op, ValidationError } = require('sequelize');
 // Display list of all analises
 exports.findAll = async (req, res) => {
     try {
-        let analises = await analise.findAll() 
+        let analises = await Analise.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -29,7 +29,7 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const analiseData = await analise.findByPk(id);
+        const analiseData = await Analise.findByPk(id);
 
         if (analiseData) {
             return res.status(200).json({
@@ -56,5 +56,41 @@ exports.findOne = async (req, res) => {
                 error: error.message
             });
         }
+    }
+};
+
+exports.create = async (req, res) => {
+    try {
+        const { resultado, preco_analise, data, id_consulta } = req.body;
+        
+        if (!resultado || !preco_analise || !data || !id_consulta)
+            return res.status(400).json({message: "Todos os campos são obrigatórios"})
+
+        const newAnalise = {
+            resultado: resultado,
+            preco_analise: preco_analise,
+            data: data,
+            id_consulta: id_consulta
+        };
+
+        Analise.create(newAnalise)
+            .then(result => {
+                res.status(201).json({
+                    success: true,
+                    message: "Análise criada",
+                    data: result
+                });
+            })
+            .catch(err => {
+                res.status(500).json({
+                    success: false,
+                    error: err.message || "Erro ao criar a análise"
+                });
+            });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message || "Erro ao criar a análise"
+        });
     }
 };
