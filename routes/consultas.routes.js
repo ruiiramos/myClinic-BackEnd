@@ -9,6 +9,7 @@ let router = express.Router();
 
 router.route('/')
     .get(checkAuth, consultasController.findAll) // PROTECTED (user only)
+    .post(checkAuth, consultasController.create) // PROTECTED (user only)
 
 router.route('/:id')
     .get(checkAuth, consultasController.findOne) // PROTECTED (user only)

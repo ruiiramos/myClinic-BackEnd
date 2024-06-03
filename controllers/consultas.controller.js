@@ -110,3 +110,42 @@ exports.findByMedico = async (req, res) => {
         });
     }
 };
+
+exports.create = async (req, res) => {
+    try {
+        const { data, hora, preco_consulta, id_medico, id_paciente } = req.body;
+        
+        if (!data || !hora || !preco_consulta || !id_medico || !id_paciente)
+            return res.status(400).json({message: "Todos os campos são obrigatórios"})
+
+        const newConsulta = {
+            data: data,
+            hora: hora,
+            preco_consulta: preco_consulta,
+            id_medico: id_medico,
+            id_paciente: id_paciente
+        };
+
+        Consulta.create(newConsulta)
+            .then(result => {
+                res.status(201).json({
+                    success: true,
+                    message: "Consulta criada",
+                    data: result
+                });
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({
+                    success: false,
+                    error: err.message || "Erro ao criar consulta"
+                });
+            });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false, 
+            error: error.message || "Erro ao criar consulta"
+        });
+    }
+};
