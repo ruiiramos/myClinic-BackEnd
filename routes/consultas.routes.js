@@ -16,6 +16,9 @@ router.route('/:id')
 router.route('/paciente/:id')
     .get(checkAuth, consultasController.findByPaciente) // PROTECTED (user only)
 
+router.route('/medico/:id')
+    .get(checkAuth, consultasController.findByMedico) // PROTECTED (user only)
+
 router.all('*', (req, res) => {
     res.status(404).json({ success: false, message: 'myClinic: what???' }); 
 })

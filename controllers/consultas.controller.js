@@ -85,3 +85,28 @@ exports.findByPaciente = async (req, res) => {
         });
     }
 };
+
+exports.findByMedico = async (req, res) => {
+    try {
+        const id_medico = req.params.id;
+        const consultas = await Consulta.findAll({where: { id_medico: id_medico }});
+
+        if (consultas && consultas.length > 0) {
+            return res.status(200).json({
+                success: true,
+                data: consultas
+            });
+        } else {
+            return res.status(404).json({
+                success: false,
+                message: `Nenhuma consulta encontrada para o médico com ID ${id_medico}.`
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Ocorreu um erro ao procurar as consultas.',
+            error: error.message
+        });
+    }
+};
