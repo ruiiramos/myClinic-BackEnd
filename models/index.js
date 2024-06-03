@@ -44,21 +44,151 @@ db.admin = require("./admin.model.js")(sequelize, DataTypes);
 db.codigo_postal = require("./codPostal.model.js")(sequelize, DataTypes);
 //export CONTACTO model
 db.contacto = require("./contacto.model.js")(sequelize, DataTypes);
-//export PACIENTE model
+//export GENERO model
 db.genero = require("./genero.model.js")(sequelize, DataTypes);
-//export PACIENTE model
+//export MEDICAMENTO_PRESCRICAO model
 db.medicamento_prescricao = require("./medicamentoPrescricao.model.js")(sequelize, DataTypes);
-//export PACIENTE model
+//export MEDICAMENTO model
 db.medicamento = require("./medicamentos.model.js")(sequelize, DataTypes);
-//export PACIENTE model
+//export NOME_EXAME model
 db.nome_exame = require("./nomeExame.model.js")(sequelize, DataTypes);
-//export PACIENTE model
+//export PRESCRICAO model
 db.prescricao = require("./prescricao.model.js")(sequelize, DataTypes);
-//export PACIENTE model
+//export SISTEMA_DE_SAUDE model
 db.sistema_de_saude = require("./sistSaude.model.js")(sequelize, DataTypes);
 
-// // optionally: SYNC
-   /* (async () => {
+/* ***********************************************************************************
+                                        RELATIONSHIPS 
+**************************************************************************************
+*/
+
+/* *************************************************
+                RELATIONSHIPS PACIENTES
+****************************************************
+*/
+
+// 1 sistema de saude : N pacientes
+db.sistema_de_saude.hasMany(db.paciente);
+db.paciente.belongsTo(db.sistema_de_saude, {
+    foreignKey: "id_sistema_saude"
+});
+
+// 1 codigo postal : N pacientes
+db.codigo_postal.hasMany(db.paciente);
+db.paciente.belongsTo(db.codigo_postal, {
+    foreignKey: "id_contacto"
+});
+
+// 1 genero : N pacientes
+db.genero.hasMany(db.paciente);
+db.paciente.belongsTo(db.genero, {
+    foreignKey: "id_genero"
+});
+
+// 1 paciente : N contactos
+db.paciente.hasMany(db.contacto);
+db.contacto.belongsTo(db.paciente, {
+    foreignKey: "id_paciente"
+});
+
+// 1 paciente : N consultas
+db.paciente.hasMany(db.consulta);
+db.consulta.belongsTo(db.paciente, {
+    foreignKey: "id_paciente"
+});
+
+/* *************************************************
+                RELATIONSHIPS CONSULTA
+****************************************************
+*/
+
+// 1 medico : N consultas
+db.medico.hasMany(db.consulta);
+db.consulta.belongsTo(db.medico, {
+    foreignKey: "id_medico"
+});
+
+// 1 consulta : N prescricoes
+db.consulta.hasMany(db.prescricao);
+db.prescricao.belongsTo(db.consulta, {
+    foreignKey: "id_consulta"
+});
+
+// 1 consulta : N exames
+db.consulta.hasMany(db.exame);
+db.exame.belongsTo(db.consulta, {
+    foreignKey: "id_consulta"
+});
+
+// 1 consulta : N analises
+db.consulta.hasMany(db.analise);
+db.analise.belongsTo(db.consulta, {
+    foreignKey: "id_consulta"
+});
+
+/* *************************************************
+                RELATIONSHIPS MEDICO
+****************************************************
+*/
+
+// 1 especialidade : N medicos
+db.especialidade.hasMany(db.medico);
+db.medico.belongsTo(db.especialidade, {
+    foreignKey: "id_especialidade"
+});
+
+/* *************************************************
+                RELATIONSHIPS EXAME 
+****************************************************
+*/
+
+// 1 especialidade : N exames
+db.especialidade.hasMany(db.exame);
+db.exame.belongsTo(db.especialidade, {
+    foreignKey: "id_especialidade"
+});
+
+// 1 nome_exame : N exames
+db.nome_exame.hasMany(db.exame, {
+    foreignKey: "id_nome_exame"
+});
+db.exame.belongsTo(db.nome_exame, {
+    foreignKey: "id_nome_exame"
+});
+
+
+// 1 genero : N pacientes
+db.genero.hasMany(db.paciente);
+db.paciente.belongsTo(db.genero, {
+    foreignKey: "id_genero"
+});
+
+/* *************************************************
+                RELATIONSHIPS PRESCRICAO 
+****************************************************
+*/
+
+// 1 prescricao : N medicamento_prescricao
+db.prescricao.hasMany(db.medicamento_prescricao);
+db.medicamento_prescricao.belongsTo(db.prescricao, {
+    foreignKey: "id_prescricao"
+});
+
+/* *************************************************
+                RELATIONSHIPS MEDICAMENTO 
+****************************************************
+*/
+
+// 1 medicamento : N medicamento_prescricao
+db.medicamento.hasMany(db.medicamento_prescricao, {
+    foreignKey: "id_medicamento"
+});
+db.medicamento_prescricao.belongsTo(db.medicamento, {
+    foreignKey: "id_medicamento"
+});
+
+/* // // optionally: SYNC
+    (async () => {
     try {
         // await sequelize.sync({ force: true }); // creates tables, dropping them first if they already existed
        await sequelize.sync({ alter: true }); // checks the tables in the database (which columns they have, what are their data types, etc.), and then performs the necessary changes to make then match the models
