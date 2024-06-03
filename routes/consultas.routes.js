@@ -13,6 +13,7 @@ router.route('/')
 
 router.route('/:id')
     .get(checkAuth, consultasController.findOne) // PROTECTED (user only)
+    .patch(checkAuth, consultasController.update) // PROTECTED (user only)
 
 router.route('/paciente/:id')
     .get(checkAuth, consultasController.findByPaciente) // PROTECTED (user only)
