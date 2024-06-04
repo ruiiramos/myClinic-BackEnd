@@ -1,5 +1,7 @@
 const db = require("../models/index.js")
 const Paciente = db.paciente;
+const Consulta = db.consulta;
+const Contacto = db.contacto;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -218,4 +220,50 @@ exports.update = async (req, res) => {
             msg: `Error retrieving paciente with ID ${req.params.id}.`
         });
     };
+};
+
+exports.delete = async (req, res) => {
+    try {
+        const paciente = await Paciente.findByPk(req.params.id);
+
+        if (!paciente) {
+            return res.status(404).json({
+                success: false, msg: `Paciente with ID ${req.params.id} not found.`
+            });
+        }
+
+            const consultas = await Consulta.findOne({
+                where: { 
+                    id_paciente: paciente.id_paciente
+                }
+            });
+
+            if (consultas) {
+                return res.status(400).json({
+                    success: false,
+                    msg: "Unable to delete the patient because there are consultas associated with him."
+                });
+            }
+
+        const contacto = await Contacto.findOne({
+            where: { 
+                id_paciente: paciente.id_paciente
+            }
+        });
+
+        if (contacto) {
+            await contacto.destroy();
+        }
+
+        await paciente.destroy();
+
+        return res.status(200).json({
+            success: true, msg: `Paciente with ID ${req.params.id} has been deleted.`
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: err
+        });
+    }
 };
