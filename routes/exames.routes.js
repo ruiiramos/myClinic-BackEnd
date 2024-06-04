@@ -13,6 +13,7 @@ router.route('/')
 
 router.route('/:id')
     .get(checkAuth, examesController.findOne) // PROTECTED (user only)
+    .patch(checkAuth, checkCurrent, examesController.update) // PROTECTED (doctor only)
 
 router.all('*', function (req, res) {
     res.status(400).json({ success: false, message: 'myClinic: what???'  });

@@ -104,3 +104,42 @@ exports.create = async (req, res) => {
         });   
     }
 };
+
+exports.update = async (req, res) => {
+    let exame;
+    try {
+        exame = await Exame.findByPk(req.params.id);
+
+        if (!exame) {
+            return res.status(404).json({
+                success: false, msg: `Exame with ID ${req.params.id} not found.`
+            });
+        }
+
+        let affectedRows = await exame.update(req.body);
+
+        if(affectedRows[0] === 0){
+            return res.status(200).json({
+                success: true, 
+                msg: `No updates were made to exame with ID ${req.params.id}.`
+            });
+        }
+
+        return res.json({
+            success: true,
+            msg: `Exame with ID ${req.params.id} was updated successfully.`
+        });
+    }
+    catch (err) {
+        if (err instanceof ValidationError)
+            return res.status(400).json({ 
+                success: false, 
+                msg: err.errors.map(e => e.message) 
+            });
+
+        res.status(500).json({
+            success: false, 
+            msg: `Error retrieving exame with ID ${req.params.id}.`
+        });
+    };
+};
