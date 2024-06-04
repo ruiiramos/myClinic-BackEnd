@@ -1,15 +1,13 @@
 const db = require("../models/index.js")
-const exame = db.exame;
+const Exame = db.exame;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
 
-// Display list of all exames
 exports.findAll = async (req, res) => {
     try {
-        let exames = await exame.findAll() 
-        
-        // Send response with pagination and data
+        let exames = await Exame.findAll() 
+
         res.status(200).json({ 
             success: true, 
             data: exames
@@ -29,7 +27,7 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const exameData = await exame.findByPk(id);
+        const exameData = await Exame.findByPk(id);
 
         if (exameData) {
             return res.status(200).json({
@@ -56,5 +54,53 @@ exports.findOne = async (req, res) => {
                 error: error.message
             });
         }
+    }
+};
+
+exports.create = async (req, res) => {
+    try {
+        const { data, hora, id_consulta, id_especialidade, id_nome_exame } = req.body;
+    
+        if (!data || !hora || !id_consulta || !id_especialidade || !id_nome_exame) {
+            return res.status(400).json({
+                message: "Todos os campos são obrigatórios!"
+            });
+        }
+    
+        const existingExame = await Exame.findOne({ where: { nome_exame: nome_exame } });
+    
+        if (existingExame) {
+            return res.status(400).json({
+                message: "Especialidade já existe"
+            });
+        } else {
+            const newExame = {
+                data: data,
+                hora: hora,
+                id_consulta: id_consulta,
+                id_especialidade: id_especialidade,
+                id_nome_exame: id_nome_exame
+            };
+    
+            Exame.create(newExame)
+            .then(result => {
+                res.status(201).json({
+                    success: true,
+                    message: "Exame criado com sucesso",
+                    data: result
+                });
+            })
+            .catch(err => {
+                res.status(500).json({
+                    success: false,
+                    message: err.message || "Erro ao criar o exame"
+                });
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Erro ao criar o exame"
+        });   
     }
 };
