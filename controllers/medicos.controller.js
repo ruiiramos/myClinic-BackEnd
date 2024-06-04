@@ -1,5 +1,6 @@
 const db = require("../models/index.js")
 const Medico = db.medico;
+const Consulta = db.consulta;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
