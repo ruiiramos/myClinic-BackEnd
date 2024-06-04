@@ -1,5 +1,6 @@
 const db = require("../models/index.js");
-const especialidade = db.especialidade;
+const Especialidade = db.especialidade;
+const Medico = db.medico;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -7,7 +8,7 @@ const { Op, ValidationError } = require('sequelize');
 // Display list of all tutorials (with pagination)
 exports.findAll = async (req, res) => {
     try {
-        let especialidades = await especialidade.findAll() 
+        let especialidades = await Especialidade.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -29,7 +30,7 @@ exports.findAll = async (req, res) => {
 exports.findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const especialidadeData = await especialidade.findByPk(id);
+        const especialidadeData = await Especialidade.findByPk(id);
 
         if (especialidadeData) {
             return res.status(200).json({
@@ -39,7 +40,7 @@ exports.findOne = async (req, res) => {
         } else {
             return res.status(404).json({
                 success: false,
-                message: 'Especialidade não encontrada.'
+                message: 'especialidade não encontrada.'
             });
         }
     } catch (error) {
@@ -56,5 +57,49 @@ exports.findOne = async (req, res) => {
                 error: error.message
             });
         }
+    }
+};
+
+exports.create = async (req, res) => {
+    try {
+        const { especialidade } = req.body;
+    
+        if (!especialidade) {
+            return res.status(400).json({
+                message: "O campo especialidade é obrigatório"
+            });
+        }
+    
+        const existingEspecialidade = await Especialidade.findOne({ where: { especialidade: especialidade } });
+    
+        if (existingEspecialidade) {
+            return res.status(400).json({
+                message: "Especialidade já existe"
+            });
+        } else {
+            const newEspecialidade = {
+                especialidade: especialidade
+            };
+    
+            Especialidade.create(newEspecialidade)
+            .then(result => {
+                res.status(201).json({
+                    success: true,
+                    message: "Especialidade criada com sucesso",
+                    data: result
+                });
+            })
+            .catch(err => {
+                res.status(500).json({
+                    success: false,
+                    message: err.message || "Erro ao criar a especialidade"
+                });
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Erro ao criar a especialidade"
+        });   
     }
 };
