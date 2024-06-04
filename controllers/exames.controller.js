@@ -143,3 +143,26 @@ exports.update = async (req, res) => {
         });
     };
 };
+
+exports.delete = async (req, res) => {
+    try {
+        const exame = await Exame.findByPk(req.params.id);
+
+        if (!exame) {
+            return res.status(404).json({
+                success: false, msg: `Exame with ID ${req.params.id} not found.`
+            });
+        }
+
+        await exame.destroy();
+
+        return res.status(200).json({
+            success: true, msg: `Exame with ID ${req.params.id} has been deleted.`
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: err
+        });
+    }
+};
