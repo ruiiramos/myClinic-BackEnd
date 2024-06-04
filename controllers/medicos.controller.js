@@ -208,3 +208,39 @@ exports.update = async (req, res) => {
         });
     };
 };
+
+exports.delete = async (req, res) => {
+    try {
+        const medico = await Medico.findByPk(req.params.id);
+
+        if (!medico) {
+            return res.status(404).json({
+                success: false, msg: `Médico with ID ${req.params.id} not found.`
+            });
+        }
+
+        const consultas = await Consulta.findOne({
+            where: { 
+                id_medico: medico.id_medico
+            }
+        });
+
+        if (consultas) {
+            return res.status(400).json({
+                success: false,
+                msg: "Unable to delete the médico because there are consultas associated with him."
+            });
+        }
+
+        await medico.destroy();
+
+        return res.status(200).json({
+            success: true, msg: `Médico with ID ${req.params.id} has been deleted.`
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: err
+        });
+    }
+};

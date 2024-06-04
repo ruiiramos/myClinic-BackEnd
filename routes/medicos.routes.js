@@ -14,6 +14,7 @@ router.route('/')
 router.route('/:id')
     .get(checkAuth, medicosController.findOne) // PROTECTED (user only)
     .patch(checkAuth, medicosController.update) // PROTECTED (user only)
+    .delete(checkAuth, medicosController.delete) // PROTECTED (user only)
 
 router.route('/login')
     .post(medicosController.login) // PUBLIC
