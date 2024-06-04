@@ -1,14 +1,15 @@
 const db = require("../models/index.js")
-const medico = db.medico;
+const Medico = db.medico;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 // Display list of all medicos
 exports.findAll = async (req, res) => {
     try {
-        let medicos = await medico.findAll() 
+        let medicos = await Medico.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -28,35 +29,42 @@ exports.findAll = async (req, res) => {
 };
 
 exports.findOne = async (req, res) => {
+    const id_medico = req.params.id;
     try {
-        const id = req.params.id;
-        const medicoData = await medico.findByPk(id);
 
-        if (medicoData) {
-            return res.status(200).json({
-                success: true,
-                data: medicoData
-            });
-        } else {
+        let medico = await Medico.findByPk(id_medico, {
+            attributes: ['nome_medico', 'cedula', 'password'],
+            include: [
+                {
+                    model: db.especialidade,
+                    attributes: ['especialidade'],
+                },
+            ]
+        });
+
+        if (!medico) {
             return res.status(404).json({
-                success: false,
-                message: 'medico não encontrada.'
+                success: false, 
+                message: `Médico with ID ${id_medico} not found.`
             });
         }
+
+        res.status(200).json({ 
+            success: true, 
+            data: medico,
+            links:[
+                { "rel": "self", "href": `/pacientes/${id_medico}`, "method": "GET" },
+                { "rel": "delete", "href": `/pacientes/${id_medico}`, "method": "DELETE" },
+                { "rel": "modify", "href": `/pacientes/${id_medico}`, "method": "PATCH" },
+            ]
+        });
+
     } catch (error) {
-        if (error instanceof ValidationError) {
-            return res.status(400).json({
-                success: false,
-                message: error.message || 'Erro de validação ao procurar a medico.',
-                error: error.errors
-            });
-        } else {
-            return res.status(500).json({
-                success: false,
-                message: error.message || 'Ocorreu um erro ao procurar a medico.',
-                error: error.message
-            });
-        }
+        console.error(error);
+        return res.status(500).json({ 
+            success: false, 
+            message: `Error retrieving médico with ID ${id_medico}.`
+        });
     }
 };
 
@@ -67,7 +75,7 @@ exports.create = async (req, res) => {
         if (!cedula || !password || !nome_medico || !id_especialidade)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
-        const medicoData = await medico.findOne({ where: { cedula: cedula } });
+        const medicoData = await Medico.findOne({ where: { cedula: cedula } });
 
         if (medicoData) {
             return res.status(400).json({
@@ -86,7 +94,7 @@ exports.create = async (req, res) => {
                         nome_medico: nome_medico,
                         id_especialidade: id_especialidade
                     };
-                    medico.create(newMedico)
+                    Medico.create(newMedico)
                         .then(result => {
                             console.log(result);
                             res.status(201).json({
@@ -115,7 +123,7 @@ exports.login = (req, res, next) => {
     const cedula = req.body.cedula;
     const password = req.body.password;
 
-    medico.findOne({ cedula: cedula })
+    Medico.findOne({ where: { cedula: cedula } })
         .then(medico => {
             if (!medico) {
                 return res.status(401).json({

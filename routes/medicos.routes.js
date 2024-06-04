@@ -8,13 +8,17 @@ const checkAdmin = require("../middleware/check-admin");
 let router = express.Router();
 
 router.route('/')
-    .get(medicosController.findAll)
-    .post(medicosController.create)
+    .get(checkAuth, medicosController.findAll) // PROTECTED (user only)
+    .post(medicosController.create) // PUBLIC
 
 router.route('/:id')
-    .get(medicosController.findOne)
+    .get(checkAuth, medicosController.findOne) // PROTECTED (user only)
 
 router.route('/login')
-    .post(medicosController.login)
+    .post(medicosController.login) // PUBLIC
+
+router.all('*', function (req, res) {
+    res.status(400).json({ success: false, message: 'myClinic: what???'  });
+})
 
 module.exports = router;
