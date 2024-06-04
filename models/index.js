@@ -68,31 +68,41 @@ db.sistema_de_saude = require("./sistSaude.model.js")(sequelize, DataTypes);
 */
 
 // 1 sistema de saude : N pacientes
-db.sistema_de_saude.hasMany(db.paciente);
+db.sistema_de_saude.hasMany(db.paciente, {
+    foreignKey: "id_sistema_saude"
+});
 db.paciente.belongsTo(db.sistema_de_saude, {
     foreignKey: "id_sistema_saude"
 });
 
 // 1 codigo postal : N pacientes
-db.codigo_postal.hasMany(db.paciente);
+db.codigo_postal.hasMany(db.paciente, {
+    foreignKey: "id_contacto"
+});
 db.paciente.belongsTo(db.codigo_postal, {
     foreignKey: "id_contacto"
 });
 
 // 1 genero : N pacientes
-db.genero.hasMany(db.paciente);
+db.genero.hasMany(db.paciente, {
+    foreignKey: "id_genero"
+});
 db.paciente.belongsTo(db.genero, {
     foreignKey: "id_genero"
 });
 
 // 1 paciente : N contactos
-db.paciente.hasMany(db.contacto);
+db.paciente.hasMany(db.contacto, {
+    foreignKey: "id_paciente"
+});
 db.contacto.belongsTo(db.paciente, {
     foreignKey: "id_paciente"
 });
 
 // 1 paciente : N consultas
-db.paciente.hasMany(db.consulta);
+db.paciente.hasMany(db.consulta, {
+    foreignKey: "id_paciente"
+});
 db.consulta.belongsTo(db.paciente, {
     foreignKey: "id_paciente"
 });
@@ -103,25 +113,33 @@ db.consulta.belongsTo(db.paciente, {
 */
 
 // 1 medico : N consultas
-db.medico.hasMany(db.consulta);
+db.medico.hasMany(db.consulta, {
+    foreignKey: "id_medico"
+});
 db.consulta.belongsTo(db.medico, {
     foreignKey: "id_medico"
 });
 
 // 1 consulta : N prescricoes
-db.consulta.hasMany(db.prescricao);
+db.consulta.hasMany(db.prescricao, {
+    foreignKey: "id_consulta"
+});
 db.prescricao.belongsTo(db.consulta, {
     foreignKey: "id_consulta"
 });
 
 // 1 consulta : N exames
-db.consulta.hasMany(db.exame);
+db.consulta.hasMany(db.exame, {
+    foreignKey: "id_consulta"
+});
 db.exame.belongsTo(db.consulta, {
     foreignKey: "id_consulta"
 });
 
 // 1 consulta : N analises
-db.consulta.hasMany(db.analise);
+db.consulta.hasMany(db.analise, {
+    foreignKey: "id_consulta"
+});
 db.analise.belongsTo(db.consulta, {
     foreignKey: "id_consulta"
 });
@@ -132,7 +150,9 @@ db.analise.belongsTo(db.consulta, {
 */
 
 // 1 especialidade : N medicos
-db.especialidade.hasMany(db.medico);
+db.especialidade.hasMany(db.medico, {
+    foreignKey: "id_especialidade"
+});
 db.medico.belongsTo(db.especialidade, {
     foreignKey: "id_especialidade"
 });
@@ -143,7 +163,9 @@ db.medico.belongsTo(db.especialidade, {
 */
 
 // 1 especialidade : N exames
-db.especialidade.hasMany(db.exame);
+db.especialidade.hasMany(db.exame, {
+    foreignKey: "id_especialidade"
+});
 db.exame.belongsTo(db.especialidade, {
     foreignKey: "id_especialidade"
 });
@@ -158,7 +180,9 @@ db.exame.belongsTo(db.nome_exame, {
 
 
 // 1 genero : N pacientes
-db.genero.hasMany(db.paciente);
+db.genero.hasMany(db.paciente, {
+    foreignKey: "id_genero"
+});
 db.paciente.belongsTo(db.genero, {
     foreignKey: "id_genero"
 });
@@ -169,7 +193,9 @@ db.paciente.belongsTo(db.genero, {
 */
 
 // 1 prescricao : N medicamento_prescricao
-db.prescricao.hasMany(db.medicamento_prescricao);
+db.prescricao.hasMany(db.medicamento_prescricao, {
+    foreignKey: "id_prescricao"
+});
 db.medicamento_prescricao.belongsTo(db.prescricao, {
     foreignKey: "id_prescricao"
 });
@@ -197,6 +223,5 @@ db.medicamento_prescricao.belongsTo(db.medicamento, {
     } catch (error) {
        console.log(error)
     }
- })(); 
- */
+ })(); */
 module.exports = db;
