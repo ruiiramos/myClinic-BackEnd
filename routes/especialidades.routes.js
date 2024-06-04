@@ -13,6 +13,7 @@ router.route('/')
 
 router.route('/:id')
     .get(checkAuth, especialidadeController.findOne) // PROTECTED (user only)
+    .delete(checkAuth, especialidadeController.delete) // PROTECTED (admin only)
 
 router.all('*', function (req, res) {
     res.status(400).json({ success: false, message: 'myClinic: what???'  });

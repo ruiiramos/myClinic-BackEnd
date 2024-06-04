@@ -103,3 +103,39 @@ exports.create = async (req, res) => {
         });   
     }
 };
+
+exports.delete = async (req, res) => {
+    try {
+        const especialidade = await Especialidade.findByPk(req.params.id);
+
+        if (!especialidade) {
+            return res.status(404).json({
+                success: false, msg: `Especialidade with ID ${req.params.id} not found.`
+            });
+        }
+
+        const consultas = await Medico.findOne({
+            where: { 
+                id_especialidade: especialidade.id_especialidade
+            }
+        });
+
+        if (consultas) {
+            return res.status(400).json({
+                success: false,
+                msg: "Unable to delete the especialidade because there are médicos associated with it."
+            });
+        }
+
+        await especialidade.destroy();
+
+        return res.status(200).json({
+            success: true, msg: `Especialidade with ID ${req.params.id} has been deleted.`
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: err
+        });
+    }
+};
