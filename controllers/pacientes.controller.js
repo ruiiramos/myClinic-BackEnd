@@ -1,5 +1,5 @@
 const db = require("../models/index.js")
-const paciente = db.paciente;
+const Paciente = db.paciente;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 // Display list of all pacientes
 exports.findAll = async (req, res) => {
     try {
-        let pacientes = await paciente.findAll() 
+        let pacientes = await Paciente.findAll() 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -29,35 +29,50 @@ exports.findAll = async (req, res) => {
 };
 
 exports.findOne = async (req, res) => {
+    const id_paciente = req.params.id;
     try {
-        const id = req.params.id;
-        const pacienteData = await paciente.findByPk(id);
 
-        if (pacienteData) {
-            return res.status(200).json({
-                success: true,
-                data: pacienteData
-            });
-        } else {
+        let paciente = await Paciente.findByPk(id_paciente, {
+            attributes: ['nome', 'data_nascimento', 'n_utente', 'profissao', 'cod_postal', 'password'],
+            include: [
+                {
+                    model: db.sistema_de_saude,
+                    attributes: ['sistema_saude'],
+                },
+                {
+                    model: db.contacto,
+                    attributes: ['contacto'],
+                },
+                {
+                    model: db.genero,
+                    attributes: ['genero'],
+                }
+            ]
+        });
+
+        if (!paciente) {
             return res.status(404).json({
-                success: false,
-                message: 'paciente não encontrada.'
+                success: false, 
+                message: `Paciente with ID ${id_paciente} not found.`
             });
         }
+
+        res.status(200).json({ 
+            success: true, 
+            data: paciente,
+            links:[
+                { "rel": "self", "href": `/pacientes/${id_paciente}`, "method": "GET" },
+                { "rel": "delete", "href": `/pacientes/${id_paciente}`, "method": "DELETE" },
+                { "rel": "modify", "href": `/pacientes/${id_paciente}`, "method": "PATCH" },
+            ]
+        });
+
     } catch (error) {
-        if (error instanceof ValidationError) {
-            return res.status(400).json({
-                success: false,
-                message: error.message || 'Erro de validação ao procurar a paciente.',
-                error: error.errors
-            });
-        } else {
-            return res.status(500).json({
-                success: false,
-                message: error.message || 'Ocorreu um erro ao procurar a paciente.',
-                error: error.message
-            });
-        }
+        console.error(error);
+        return res.status(500).json({ 
+            success: false, 
+            message: `Error retrieving Paciente with ID ${id_paciente}.`
+        });
     }
 };
 
@@ -91,7 +106,7 @@ exports.create = async (req, res) => {
                         cod_postal: cod_postal,
                         id_sistema_saude: id_sistema_saude
                     };
-                    paciente.create(newPaciente)
+                    Paciente.create(newPaciente)
                         .then(result => {
                             console.log(result);
                             res.status(201).json({
@@ -120,7 +135,7 @@ exports.login = (req, res, next) => {
     const n_utente = req.body.n_utente;
     const password = req.body.password;
 
-    paciente.findOne({ n_utente: n_utente })
+    Paciente.findOne({ where: { n_utente: n_utente } })
         .then(paciente => {
             if (!paciente) {
                 return res.status(401).json({
