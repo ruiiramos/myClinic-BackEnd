@@ -168,3 +168,43 @@ exports.login = (req, res, next) => {
             });
         });
 };
+
+exports.update = async (req, res) => {
+    let medico;
+    try {
+        medico = await Medico.findByPk(req.params.id);
+
+        if (!medico) {
+            return res.status(404).json({
+                success: false, msg: `Médico with ID ${req.params.id} not found.`
+            });
+        }
+
+        let affectedRows = await medico.update(req.body);
+
+        if(affectedRows[0] === 0){
+            return res.status(200).json({
+                success: true, 
+                msg: `No updates were made to médico with ID ${req.params.id}.`
+            });
+        }
+
+        return res.json({
+            success: true,
+            msg: `Médico with ID ${req.params.id} was updated successfully.`
+        });
+    }
+    catch (err) {
+        console.error(err);
+        if (err instanceof ValidationError)
+            return res.status(400).json({ 
+                success: false, 
+                msg: err.errors.map(e => e.message) 
+            });
+
+        res.status(500).json({
+            success: false, 
+            msg: `Error retrieving médico with ID ${req.params.id}.`
+        });
+    };
+};
