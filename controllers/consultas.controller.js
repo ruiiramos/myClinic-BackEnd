@@ -188,3 +188,46 @@ exports.update = async (req, res) => {
         });
     };
 };
+
+exports.delete = async (req, res) => {
+    try {
+        const consulta = await Consulta.findByPk(req.params.id);
+
+        if (!consulta) {
+            return res.status(404).json({
+                success: false, msg: `Consulta with ID ${req.params.id} not found.`
+            });
+        }
+
+        const analise = await Analise.findOne({
+            where: { 
+                id_consulta: consulta.id_consulta
+            }
+        });
+
+        if (analise) {
+            await analise.destroy();
+        }
+
+        const exame = await Exame.findOne({
+            where: { 
+                id_consulta: consulta.id_consulta
+            }
+        });
+
+        if (exame) {
+            await exame.destroy();
+        }
+
+        await consulta.destroy();
+
+        return res.status(200).json({
+            success: true, msg: `Consulta with ID ${req.params.id} has been deleted.`
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: err
+        });
+    }
+};
