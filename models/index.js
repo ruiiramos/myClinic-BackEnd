@@ -34,16 +34,10 @@ db.consulta = require("./consultas.model.js")(sequelize, DataTypes);
 db.especialidade = require("./especialidade.model.js")(sequelize, DataTypes);
 //export EXAME model
 db.exame = require("./exames.model.js")(sequelize, DataTypes);
-//export MEDICO model
-db.medico = require("./medicos.model.js")(sequelize, DataTypes);
-//export PACIENTE model
-db.paciente = require("./pacientes.model.js")(sequelize, DataTypes);
-//export ADMIN model
-db.admin = require("./admin.model.js")(sequelize, DataTypes);
+//export UTILIZADOR model
+db.utilizador = require("./utilizadores.model.js")(sequelize, DataTypes);
 //export CODPOSTAL model
 db.codigo_postal = require("./codPostal.model.js")(sequelize, DataTypes);
-//export CONTACTO model
-db.contacto = require("./contacto.model.js")(sequelize, DataTypes);
 //export GENERO model
 db.genero = require("./genero.model.js")(sequelize, DataTypes);
 //export MEDICAMENTO_PRESCRICAO model
@@ -56,6 +50,11 @@ db.nome_exame = require("./nomeExame.model.js")(sequelize, DataTypes);
 db.prescricao = require("./prescricao.model.js")(sequelize, DataTypes);
 //export SISTEMA_DE_SAUDE model
 db.sistema_de_saude = require("./sistSaude.model.js")(sequelize, DataTypes);
+//export USER_CODES model
+db.user_codes = require("./userCodes.model.js")(sequelize, DataTypes);
+//export USER_TOKENS model
+db.user_tokens = require("./userTokens.model.js")(sequelize, DataTypes);
+
 
 /* ***********************************************************************************
                                         RELATIONSHIPS 
@@ -63,62 +62,77 @@ db.sistema_de_saude = require("./sistSaude.model.js")(sequelize, DataTypes);
 */
 
 /* *************************************************
-                RELATIONSHIPS PACIENTES
+                RELATIONSHIPS UTILIZADORES
 ****************************************************
 */
 
-// 1 sistema de saude : N pacientes
-db.sistema_de_saude.hasMany(db.paciente, {
+// 1 sistema de saude : N utilizadores
+db.sistema_de_saude.hasMany(db.utilizador, {
     foreignKey: "id_sistema_saude"
 });
-db.paciente.belongsTo(db.sistema_de_saude, {
+db.utilizador.belongsTo(db.sistema_de_saude, {
     foreignKey: "id_sistema_saude"
 });
 
-// 1 codigo postal : N pacientes
-db.codigo_postal.hasMany(db.paciente, {
-    foreignKey: "id_contacto"
+// 1 codigo postal : N utilizadores
+db.codigo_postal.hasMany(db.utilizador, {
+    foreignKey: "cod_postal"
 });
-db.paciente.belongsTo(db.codigo_postal, {
-    foreignKey: "id_contacto"
+db.utilizador.belongsTo(db.codigo_postal, {
+    foreignKey: "cod_postal"
 });
 
-// 1 genero : N pacientes
-db.genero.hasMany(db.paciente, {
+// 1 genero : N utilizadores
+db.genero.hasMany(db.utilizador, {
     foreignKey: "id_genero"
 });
-db.paciente.belongsTo(db.genero, {
+db.utilizador.belongsTo(db.genero, {
     foreignKey: "id_genero"
 });
 
-// 1 paciente : N contactos
-db.paciente.hasMany(db.contacto, {
+// 1 utilizador : N consultas
+db.utilizador.hasMany(db.consulta, {
     foreignKey: "id_paciente"
 });
-db.contacto.belongsTo(db.paciente, {
-    foreignKey: "id_paciente"
-});
-
-// 1 paciente : N consultas
-db.paciente.hasMany(db.consulta, {
-    foreignKey: "id_paciente"
-});
-db.consulta.belongsTo(db.paciente, {
+db.consulta.belongsTo(db.utilizador, {
     foreignKey: "id_paciente"
 });
 
+// 1 genero : N utilizadores
+db.genero.hasMany(db.utilizador, {
+    foreignKey: "id_genero"
+});
+db.utilizador.belongsTo(db.genero, {
+    foreignKey: "id_genero"
+});
+
+// 1 especialidade : N utilizadores
+db.especialidade.hasMany(db.utilizador, {
+    foreignKey: "id_especialidade"
+});
+db.utilizador.belongsTo(db.especialidade, {
+    foreignKey: "id_especialidade"
+});
+
+// 1 utilizador : N userCodes
+db.user_codes.hasMany(db.utilizador, {
+    foreignKey: "id_user"
+});
+db.utilizador.belongsTo(db.user_codes, {
+    foreignKey: "id_user"
+});
+
+// 1 utilizador : N userTokens
+db.user_tokens.hasMany(db.utilizador, {
+    foreignKey: "id_user"
+});
+db.utilizador.belongsTo(db.user_tokens, {
+    foreignKey: "id_user"
+});
 /* *************************************************
                 RELATIONSHIPS CONSULTA
 ****************************************************
 */
-
-// 1 medico : N consultas
-db.medico.hasMany(db.consulta, {
-    foreignKey: "id_medico"
-});
-db.consulta.belongsTo(db.medico, {
-    foreignKey: "id_medico"
-});
 
 // 1 consulta : N prescricoes
 db.consulta.hasMany(db.prescricao, {
@@ -145,19 +159,6 @@ db.analise.belongsTo(db.consulta, {
 });
 
 /* *************************************************
-                RELATIONSHIPS MEDICO
-****************************************************
-*/
-
-// 1 especialidade : N medicos
-db.especialidade.hasMany(db.medico, {
-    foreignKey: "id_especialidade"
-});
-db.medico.belongsTo(db.especialidade, {
-    foreignKey: "id_especialidade"
-});
-
-/* *************************************************
                 RELATIONSHIPS EXAME 
 ****************************************************
 */
@@ -176,15 +177,6 @@ db.nome_exame.hasMany(db.exame, {
 });
 db.exame.belongsTo(db.nome_exame, {
     foreignKey: "id_nome_exame"
-});
-
-
-// 1 genero : N pacientes
-db.genero.hasMany(db.paciente, {
-    foreignKey: "id_genero"
-});
-db.paciente.belongsTo(db.genero, {
-    foreignKey: "id_genero"
 });
 
 /* *************************************************
@@ -213,7 +205,7 @@ db.medicamento_prescricao.belongsTo(db.medicamento, {
     foreignKey: "id_medicamento"
 });
 
-/* // // optionally: SYNC
+/*  // // optionally: SYNC
     (async () => {
     try {
         // await sequelize.sync({ force: true }); // creates tables, dropping them first if they already existed

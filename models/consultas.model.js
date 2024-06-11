@@ -36,15 +36,15 @@ module.exports = (sequelize, DataTypes) => {
         id_medico: {
             type: DataTypes.INTEGER(11),
             references: {
-                model: 'medico',
-                key: 'id_medico'
+                model: 'utilizador',
+                key: 'id_user'
             }
         },
         id_paciente: {
             type: DataTypes.INTEGER(11),
             references: {
-                model: 'paciente',
-                key: 'id_paciente'
+                model: 'utilizador',
+                key: 'id_user'
             }
         },
     },

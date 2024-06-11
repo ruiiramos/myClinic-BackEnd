@@ -1,16 +1,26 @@
 const db = require("../models/index.js")
 const Medico = db.medico;
 const Consulta = db.consulta;
+const Especialidade = db.especialidade;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer')
 
 // Display list of all medicos
 exports.findAll = async (req, res) => {
     try {
-        let medicos = await Medico.findAll() 
+        let medicos = await Medico.findAll({
+            attributes: { exclude: ['id_especialidade'] },
+            include: [
+                {
+                    model: Especialidade,
+                    attributes: ['especialidade'],
+                },
+            ]
+        }) 
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -71,16 +81,25 @@ exports.findOne = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { cedula, password, nome_medico, id_especialidade } = req.body;
+        const { cedula, password, nome_medico, especialidade } = req.body;
+
+        const especialidadeMap = { 'Cardiologia': 1, 'Dermatologia': 2, 'Pediatria': 3, 'Endocrinologia': 4, 'Estomatologia': 5, 'Gastrenterologia': 6, 'Ginecologia': 7, 'Hematologia': 8, 'Medicina Geral': 9, 'Nefrologia': 10, 'Neurologia': 11, 'Oftalmologia': 12, 'Ortopedia': 13, 'Otorrinolaringologia': 14, 'Psiquiatria': 15, 'Radiologia': 16, 'Reumatologia': 17, 'Urologia': 18 };
+        const id_especialidade = especialidadeMap[especialidade];
         
-        if (!cedula || !password || !nome_medico || !id_especialidade)
+        if (!cedula || !password || !nome_medico)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
         const medicoData = await Medico.findOne({ where: { cedula: cedula } });
 
+        const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+
         if (medicoData) {
             return res.status(400).json({
                 message: "Médico já existe"
+            });
+        } else if (!id_especialidade || !especialidade) {
+            return res.status(400).json({
+                success: false, message: `Especialidade with ID ${id_especialidade} doesn't exist.`
             });
         } else {
             bcrypt.hash(password, 10, (err, hash) => {

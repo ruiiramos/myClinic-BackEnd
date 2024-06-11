@@ -1,19 +1,12 @@
-const Admin = require('../models/admin.model')
-
-module.exports = async (req, res, next) => {
-    try {
-        const admin = await Admin.findOne({ _id: req.userData.userId, isAdmin: true });
-
-        if (admin) {
-            next();
-        } else {
-            return res.status(403).json({
-                msg: 'Only administrators can perform this action'
-            });
-        }
-    } catch (error) {
-        return res.status(500).json({
-            msg: error.message
+module.exports = (req, res, next) => {
+    // Checking if the user is an administrator
+    if (req.userData.tipo == 'admin') {
+        // If the user is an administrator, pass control to the next middleware function
+        next();
+    } else {
+        // If the user is not an administrator, respond with a 403 Forbidden status and an error message
+        return res.status(403).json({
+            msg: 'Only administrators can perfom this action'
         });
     }
-};
+}

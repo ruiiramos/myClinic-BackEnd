@@ -2,6 +2,9 @@ const db = require("../models/index.js")
 const Paciente = db.paciente;
 const Consulta = db.consulta;
 const Contacto = db.contacto;
+const codPostal = db.codigo_postal;
+const Genero = db.genero
+const sistSaude = db.sistema_de_saude
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -11,7 +14,24 @@ const bcrypt = require('bcrypt');
 // Display list of all pacientes
 exports.findAll = async (req, res) => {
     try {
-        let pacientes = await Paciente.findAll() 
+        let pacientes = await Paciente.findAll({
+            attributes: { exclude: ['id_genero', 'id_sistema_saude', 'id_contacto'] },
+            include: [
+                {
+                    model: Genero,
+                    attributes: ['genero']
+                },
+                {
+                    model: sistSaude,
+                    attributes: ['sistema_saude']
+                },
+                {
+                    model: Contacto,
+                    as: 'contactos',
+                    attributes: ['contacto']
+                }
+            ],
+        });
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -43,6 +63,7 @@ exports.findOne = async (req, res) => {
                 },
                 {
                     model: db.contacto,
+                    as: 'contactos',
                     attributes: ['contacto'],
                 },
                 {
@@ -80,18 +101,44 @@ exports.findOne = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { n_utente, password, nome, data_nascimento, profissao, id_genero, cod_postal, id_sistema_saude } = req.body;
+        const { n_utente, password, nome, data_nascimento, profissao, genero, cod_postal, localidade, sistema_de_saude, contacto } = req.body;
+
+        const generoMap = { 'Masculino': 1, 'Feminino': 2 };
+        const sistemaSaudeMap = { 'ADSE': 1, 'Medicare': 2, 'Fidelidade': 3, 'Cofidis': 4, 'Médis': 5, 'Ageas': 6, 'Multicare': 7, 'AdvanceCare': 8 };
+        const id_genero = generoMap[genero];
+        const id_sistema_saude = sistemaSaudeMap[sistema_de_saude];
+        const sistema_saude = req.body.sistema_saude;
         
-        if (!n_utente || !password || !nome || !data_nascimento || !profissao || !id_genero || !cod_postal || !id_sistema_saude)
+        if (!n_utente || !password || !nome || !data_nascimento || !profissao || !id_genero || !cod_postal || !localidade || !contacto)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
-        const pacienteData = await paciente.findOne({ where: { n_utente: n_utente } });
+        const pacienteData = await Paciente.findOne({ where: { n_utente: n_utente } });
+
+        let contactoInstance = await Contacto.findOne({ where: { contacto: contacto } });
+        if (!contactoInstance) {
+            contactoInstance = await Contacto.create({ contacto: contacto });
+        }
+        let id_contacto = contactoInstance.get('id_contacto');
+
+        let codigo_postal = await codPostal.findOne({ where: { cod_postal: cod_postal } });
+        if (!codigo_postal) {
+            codigo_postal = await codPostal.create({ cod_postal: cod_postal, localidade: localidade});
+        }
+
+        const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
 
         if (pacienteData) {
             return res.status(400).json({
                 message: "Utente já existe"
             });
-        } else {
+        } else if (!sistema_de_saude || !id_sistema_saude) {
+            return res.status(400).json({ 
+                success: false, message: "Sistema de saúde inválido" });
+        } else if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                success: false, message: "A senha deve ter pelo menos 8 caracteres, incluindo pelo menos um número e um caractere especial."})
+        }
+        else {
             bcrypt.hash(password, 10, (err, hash) => {
                 if (err) {
                     return res.status(500).json({
@@ -106,13 +153,18 @@ exports.create = async (req, res) => {
                         profissao: profissao,
                         id_genero: id_genero,
                         cod_postal: cod_postal,
-                        id_sistema_saude: id_sistema_saude
+                        localidade: localidade,
+                        id_sistema_saude: id_sistema_saude,
+                        id_contacto: id_contacto
                     };
                     Paciente.create(newPaciente)
                         .then(result => {
-                            console.log(result);
-                            res.status(201).json({
-                                message: "Utente criado"
+                            return result.addContacto(contactoInstance)
+                            .then(() => {
+                                console.log(result);
+                                res.status(201).json({
+                                    message: "Utente criado"
+                                });
                             });
                         })
                         .catch(err => {
@@ -125,6 +177,7 @@ exports.create = async (req, res) => {
             });
         }
     } catch (err) {
+        console.error(err);
         res.status(500).json({
             success: false,
             message: err.message || 'Ocorreu um erro ao criar o utente.',

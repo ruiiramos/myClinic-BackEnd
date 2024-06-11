@@ -19,8 +19,7 @@ app.use('/analises', require('./routes/analises.routes.js'))
 app.use('/consultas', require('./routes/consultas.routes.js'))
 app.use('/especialidades', require('./routes/especialidades.routes.js'))
 app.use('/exames', require('./routes/exames.routes.js'))
-app.use('/medicos', require('./routes/medicos.routes.js'))
-app.use('/pacientes', require('./routes/pacientes.routes.js'))
+app.use('/utilizadores', require('./routes/utilizadores.routes.js'))
 
 // handle invalid routes
 app.all('*', function (req, res) {
