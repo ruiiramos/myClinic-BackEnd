@@ -21,7 +21,7 @@ router.route('/medicos/:id')
     .delete(checkAuth, checkAdmin, utilizadoresController.deleteMedicos) // PROTECTED (admin only)
 
 router.route('/medicos/especialidade/:id')
-    .get(utilizadoresController.findMedicosByEspecialidade) // PROTECTED (user only)
+    .get(checkAuth, utilizadoresController.findMedicosByEspecialidade) // PROTECTED (user only)
 
 router.route('/pacientes/:id')
     .get(checkAuth, utilizadoresController.findOneMedico) // PROTECTED (user only)
