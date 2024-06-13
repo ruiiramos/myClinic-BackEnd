@@ -28,6 +28,8 @@ db.sequelize = sequelize;
 
 //export ANALISE model
 db.analise = require("./analises.model.js")(sequelize, DataTypes);
+//export NOME_ANALISE model
+db.nome_analise = require("./nomeAnalise.model.js")(sequelize, DataTypes);
 //export CONSULTA model
 db.consulta = require("./consultas.model.js")(sequelize, DataTypes);
 //export TUTORIAL model
@@ -173,10 +175,18 @@ db.exame.belongsTo(db.especialidade, {
 
 // 1 nome_exame : N exames
 db.nome_exame.hasMany(db.exame, {
-    foreignKey: "id_nome_exame"
+    foreignKey: "id_exame"
 });
 db.exame.belongsTo(db.nome_exame, {
-    foreignKey: "id_nome_exame"
+    foreignKey: "id_exame"
+});
+
+// 1 nome_analise : N analises
+db.nome_analise.hasMany(db.analise, {
+    foreignKey: "id_analise"
+});
+db.analise.belongsTo(db.nome_analise, {
+    foreignKey: "id_analise"
 });
 
 /* *************************************************
@@ -205,7 +215,7 @@ db.medicamento_prescricao.belongsTo(db.medicamento, {
     foreignKey: "id_medicamento"
 });
 
-/*  // // optionally: SYNC
+/* // // optionally: SYNC
     (async () => {
     try {
         // await sequelize.sync({ force: true }); // creates tables, dropping them first if they already existed
