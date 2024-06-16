@@ -2,6 +2,7 @@ const db = require("../models/index.js")
 const Consulta = db.consulta;
 const Exame = db.exame;
 const Analise = db.analise;
+const Utilizador = db.utilizador;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -64,7 +65,9 @@ exports.findOne = async (req, res) => {
 exports.findByPaciente = async (req, res) => {
     try {
         const id_paciente = req.params.id;
-        const consultas = await Consulta.findAll({where: { id_paciente: id_paciente }});
+        const consultas = await Consulta.findAll({
+            where: { id_paciente: id_paciente }
+        });
 
         if (consultas && consultas.length > 0) {
             return res.status(200).json({
@@ -89,7 +92,9 @@ exports.findByPaciente = async (req, res) => {
 exports.findByMedico = async (req, res) => {
     try {
         const id_medico = req.params.id;
-        const consultas = await Consulta.findAll({where: { id_medico: id_medico }});
+        const consultas = await Consulta.findAll({
+            where: { id_medico: id_medico }
+        });
 
         if (consultas && consultas.length > 0) {
             return res.status(200).json({
@@ -113,17 +118,28 @@ exports.findByMedico = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { data, hora, preco_consulta, id_medico, id_paciente } = req.body;
+        const { data, hora, preco_consulta, nome_medico, nome_paciente } = req.body;
         
-        if (!data || !hora || !preco_consulta || !id_medico || !id_paciente)
+        if (!data || !hora || !preco_consulta || !nome_medico || !nome_paciente)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
+
+        const medico = await Utilizador.findOne({ where: { nome: nome_medico, tipo: 'medico' } });
+        const paciente = await Utilizador.findOne({ where: { nome: nome_paciente, tipo: 'paciente' } });
+
+        if (!medico) {
+            return res.status(400).json({message: "Médico não encontrado"});
+        }
+
+        if (!paciente) {
+            return res.status(400).json({message: "Paciente não encontrado"});
+        }
 
         const newConsulta = {
             data: data,
             hora: hora,
             preco_consulta: preco_consulta,
-            id_medico: id_medico,
-            id_paciente: id_paciente
+            id_medico: medico.id_user,
+            id_paciente: paciente.id_user
         };
 
         Consulta.create(newConsulta)
@@ -172,7 +188,7 @@ exports.update = async (req, res) => {
 
         return res.json({
             success: true,
-            msg: `Paciente with ID ${req.params.id} was updated successfully.`
+            msg: `Consulta with ID ${req.params.id} was updated successfully.`
         });
     }
     catch (err) {
