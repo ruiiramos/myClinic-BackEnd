@@ -95,7 +95,22 @@ exports.findCurrent = async (req, res) => {
         console.log(`User ID: ${userId}`);
 
         let user = await Utilizador.findByPk(userId, {
-            attributes: { exclude: ['password'] },
+            attributes: { exclude: ['id_genero', 'id_sistema_saude', 'id_especialidade'] },
+            include: [
+                {
+                    model: Genero,
+                    attributes: ['genero'],
+                },
+                {
+                    model: Especialidade,
+                    as: 'especialidade',
+                    attributes: ['especialidade'],
+                },
+                {
+                    model: sistSaude,
+                    attributes: ['sistema_saude'],
+                }
+            ]
         });
         console.log(`User: ${JSON.stringify(user)}`);
 
@@ -480,7 +495,6 @@ exports.loginPacientes = (req, res, next) => {
                             expiresIn: "1h"
                         }
                     );
-                    console.log('Token right after creation: ', token);
 
                     return res.status(200).json({
                         message: "Authentication successful",
@@ -546,10 +560,26 @@ exports.updatePacientes = async (req, res) => {
     try {
         paciente = await Utilizador.findByPk(req.params.id);
 
+        const generoMap = { 'Masculino': 1, 'Feminino': 2 };
+        const sistemaSaudeMap = { 'ADSE': 1, 'Medicare': 2, 'Fidelidade': 3, 'Cofidis': 4, 'Médis': 5, 'Ageas': 6, 'Multicare': 7, 'AdvanceCare': 8 };
+
         if (!paciente) {
             return res.status(404).json({
                 success: false, msg: `Paciente with ID ${req.params.id} not found.`
             });
+        }
+
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            req.body.password = await bcrypt.hash(req.body.password, salt);
+        }
+
+        if (req.body.genero) {
+            req.body.id_genero = generoMap[req.body.genero];
+        }
+
+        if (req.body.sistema_saude) {
+            req.body.id_sistema_saude = sistemaSaudeMap[req.body.sistema_saude];
         }
 
         let affectedRows = await paciente.update(req.body);
@@ -561,7 +591,7 @@ exports.updatePacientes = async (req, res) => {
             });
         }
 
-        return res.json({
+        return res.status(200).json({
             success: true,
             msg: `Paciente with ID ${req.params.id} was updated successfully.`
         });
