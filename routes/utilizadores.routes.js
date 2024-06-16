@@ -7,6 +7,9 @@ const checkAdmin = require("../middleware/check-admin");
 // express router
 let router = express.Router();
 
+router.route('/current')
+    .get(checkAuth, utilizadoresController.findCurrent) // PROTECTED (user only)
+
 router.route('/medicos')
     .get(checkAuth, utilizadoresController.findAllMedicos) // PROTECTED (user only)
     .post(checkAuth, checkAdmin, utilizadoresController.createMedico) // PROTECTED (admin only)
@@ -15,13 +18,13 @@ router.route('/pacientes')
     .get(checkAuth, utilizadoresController.findAllPacientes) // PROTECTED (user only)
     .post(utilizadoresController.createPaciente) // PUBLIC
 
+router.route('/medico/especialidade')
+    .get(checkAuth, utilizadoresController.findMedicosByEspecialidade) // PROTECTED (user only)
+
 router.route('/medicos/:id')
     .get(checkAuth, utilizadoresController.findOneMedico) // PROTECTED (user only)
     .patch(checkAuth, checkAdmin, utilizadoresController.updateMedicos) // PROTECTED (admin only)
     .delete(checkAuth, checkAdmin, utilizadoresController.deleteMedicos) // PROTECTED (admin only)
-
-router.route('/medicos/especialidade/:id')
-    .get(checkAuth, utilizadoresController.findMedicosByEspecialidade) // PROTECTED (user only)
 
 router.route('/pacientes/:id')
     .get(checkAuth, utilizadoresController.findOneMedico) // PROTECTED (user only)

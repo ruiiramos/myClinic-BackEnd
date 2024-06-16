@@ -2,7 +2,6 @@ const db = require("../models/index.js")
 const Utilizador = db.utilizador;
 const Consulta = db.consulta;
 const Especialidade = db.especialidade;
-const codPostal = db.codigo_postal
 const Genero = db.genero
 const sistSaude = db.sistema_de_saude
 const userCodes = db.user_codes
@@ -88,6 +87,43 @@ exports.findAllPacientes = async (req, res) => {
             })
         }
     }
+};
+
+exports.findCurrent = async (req, res) => {
+    try {
+        const userId = req.userData.userId;
+        console.log(`User ID: ${userId}`);
+
+        let user = await Utilizador.findByPk(userId, {
+            attributes: { exclude: ['password'] },
+        });
+        console.log(`User: ${JSON.stringify(user)}`);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false, 
+                msg: `User with ID ${userId} not found.`
+            });
+        }
+
+        res.status(200).json({ 
+            success: true, 
+            data: user,
+            links:[
+                { "rel": "self", "href": `/users/${userId}`, "method": "GET" },
+                { "rel": "delete", "href": `/users/${userId}`, "method": "DELETE" },
+                { "rel": "modify", "href": `/users/${userId}`, "method": "PATCH" },
+            ]
+        });
+
+    }
+    catch (err) {
+        return res.status(500).json({ 
+            success: false, 
+            msg: `Error retrieving user with ID ${userId}.`
+        });
+        
+    };
 };
 
 exports.findOneMedico = async (req, res) => {
@@ -176,20 +212,33 @@ exports.findOnePaciente = async (req, res) => {
 
 exports.findMedicosByEspecialidade = async (req, res) => {
     try {
-        const id_especialidade = req.params.id;
+        const especialidade = req.query.especialidade;
+        const especialidadeMap = { 'Cardiologia': 1, 'Dermatologia': 2, 'Pediatria': 3, 'Endocrinologia': 4, 'Estomatologia': 5, 'Gastrenterologia': 6, 'Ginecologia': 7, 'Hematologia': 8, 'Medicina Geral': 9, 'Nefrologia': 10, 'Neurologia': 11, 'Oftalmologia': 12, 'Ortopedia': 13, 'Otorrinolaringologia': 14, 'Psiquiatria': 15, 'Radiologia': 16, 'Reumatologia': 17, 'Urologia': 18 };
+        const id_especialidade = especialidadeMap[especialidade];
+
+        const existingEspecialidade = await Especialidade.findByPk(id_especialidade);
+        if (!existingEspecialidade) {
+            return res.status(404).json({
+                success: false,
+                message: "Especialidade not found"
+            });
+        }
+
         const medicos = await Utilizador.findAll({
             where: {
-                id_especialidade: id_especialidade
+                id_especialidade: id_especialidade,
+                tipo: 'medico'
             },
-            attributes: ['id_especialidade'],
-            include: [
-                {
-                    model: Especialidade,
-                    attributes: ['especialidade'],
-                }
-            ]
+            attributes: ['id_user', 'nome']
         });
-        
+
+        if (medicos.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Especialidade not in practice"
+            });
+        }
+
         res.status(200).json({ 
             success: true, 
             data: medicos,
@@ -277,22 +326,17 @@ exports.createMedico = async (req, res) => {
 
 exports.createPaciente = async (req, res) => {
     try {
-        const { nome, n_utente, email, password, data_nascimento, contacto, imagem, cod_postal, localidade, genero, sistema_saude } = req.body;
+        const { nome, n_utente, email, password, data_nascimento, contacto, cod_postal, genero, sistema_saude } = req.body;
 
         const generoMap = { 'Masculino': 1, 'Feminino': 2 };
         const sistemaSaudeMap = { 'ADSE': 1, 'Medicare': 2, 'Fidelidade': 3, 'Cofidis': 4, 'Médis': 5, 'Ageas': 6, 'Multicare': 7, 'AdvanceCare': 8 };
         const id_genero = generoMap[genero];
         const id_sistema_saude = sistemaSaudeMap[sistema_saude];
 
-        if (!nome || !n_utente || !email || !password || !data_nascimento || !contacto || !imagem || !cod_postal || !localidade || !id_genero)
+        if (!nome || !n_utente || !email || !password || !data_nascimento || !contacto || !cod_postal || !id_genero)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
         const pacienteData = await Utilizador.findOne({ where: { n_utente: n_utente } });
-
-        let codigoPostalData = await codPostal.findOne({ where: { cod_postal: cod_postal } });
-        if (!codigoPostalData) {
-            codigoPostalData = await codPostal.create({ cod_postal: cod_postal, localidade: localidade});
-        }
 
         if (pacienteData) {
             return res.status(400).json({
@@ -317,9 +361,7 @@ exports.createPaciente = async (req, res) => {
                         tipo: 'paciente',
                         data_nascimento: data_nascimento,
                         contacto: contacto,
-                        imagem: imagem,
-                        cod_postal: codigoPostalData.cod_postal,
-                        localidade: localidade,
+                        cod_postal: cod_postal,
                         id_genero: id_genero,
                         id_sistema_saude: id_sistema_saude,
                     };
@@ -347,6 +389,7 @@ exports.createPaciente = async (req, res) => {
             });
         }
     } catch (err) {
+        console.error('Error creating paciente:', err);
         res.status(500).json({
             success: false,
             message: err.message || 'Ocorreu um erro ao criar o paciente.',
@@ -375,6 +418,7 @@ exports.loginMedicos = (req, res, next) => {
                 }
 
                 if (result) {
+                    console.log(utilizador);
                     const token = jwt.sign(
                         {
                             email: utilizador.email,
@@ -429,17 +473,19 @@ exports.loginPacientes = (req, res, next) => {
                     const token = jwt.sign(
                         {
                             email: utilizador.email,
-                            userId: utilizador._id
+                            userId: utilizador.dataValues.id_user
                         },
                         process.env.JWT_KEY,
                         {
                             expiresIn: "1h"
                         }
                     );
+                    console.log('Token right after creation: ', token);
 
                     return res.status(200).json({
                         message: "Authentication successful",
-                        token: token
+                        token: token,
+                        nome: utilizador.nome
                     });
                 }
 
@@ -662,7 +708,7 @@ exports.verifyEmail = async (req, res) => {
         if (!codigo) {
             return res.status(400).json({
                 success: false,
-                msg: "OTP is required. Please provide a valid OTP codigo."
+                msg: "OTP is required. Please provide a valid código."
             });
         }
 
