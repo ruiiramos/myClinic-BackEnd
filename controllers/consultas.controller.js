@@ -66,7 +66,20 @@ exports.findByPaciente = async (req, res) => {
     try {
         const id_paciente = req.params.id;
         const consultas = await Consulta.findAll({
-            where: { id_paciente: id_paciente }
+            where: { id_paciente: id_paciente },
+            exclude: ['id_paciente', 'id_medico'],
+            include: [
+                {
+                    model: Utilizador,
+                    as: 'medico',
+                    attributes: ['nome'],
+                },
+                {
+                    model: Utilizador,
+                    as: 'paciente',
+                    attributes: ['nome'],
+                }
+            ]
         });
 
         if (consultas && consultas.length > 0) {

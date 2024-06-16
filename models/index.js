@@ -92,12 +92,24 @@ db.utilizador.belongsTo(db.genero, {
     foreignKey: "id_genero"
 });
 
-// 1 utilizador : N consultas
+// 1 paciente : N consultas
 db.utilizador.hasMany(db.consulta, {
+    as: "paciente",
     foreignKey: "id_paciente"
 });
 db.consulta.belongsTo(db.utilizador, {
+    as: "paciente",
     foreignKey: "id_paciente"
+});
+
+// 1 medico : N consultas
+db.utilizador.hasMany(db.consulta, {
+    as: "medico",
+    foreignKey: "id_medico"
+});
+db.consulta.belongsTo(db.utilizador, {
+    as: "medico",
+    foreignKey: "id_medico"
 });
 
 // 1 genero : N utilizadores
