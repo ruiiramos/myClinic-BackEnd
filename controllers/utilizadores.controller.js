@@ -738,7 +738,7 @@ exports.verifyEmail = async (req, res) => {
         if (!codigo) {
             return res.status(400).json({
                 success: false,
-                msg: "OTP is required. Please provide a valid código."
+                msg: "Code is required. Please provide a valid código."
             });
         }
 
@@ -760,7 +760,7 @@ exports.verifyEmail = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({
                 success: false,
-                msg: "Invalid OTP. Please try again."
+                msg: "Invalid code. Please try again."
             });
         } 
 
