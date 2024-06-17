@@ -1,4 +1,5 @@
 const db = require("../models/index.js")
+const { Sequelize } = require('sequelize');
 const Consulta = db.consulta;
 const Exame = db.exame;
 const Analise = db.analise;
@@ -145,6 +146,30 @@ exports.create = async (req, res) => {
 
         if (!paciente) {
             return res.status(400).json({message: "Paciente não encontrado"});
+        }
+
+        const existingConsultaMedico = await Consulta.findOne({ 
+            where: { 
+                data: Sequelize.literal(`DATE(data) = DATE('${data}')`),
+                hora: Sequelize.literal(`TIME(hora) = TIME('${hora}')`),
+                id_medico: medico.id_user
+            } 
+        });
+        
+        if (existingConsultaMedico) {
+            return res.status(400).json({message: "Consulta já existe para este médico na data e hora especificadas"});
+        }
+        
+        const existingConsultaPaciente = await Consulta.findOne({ 
+            where: { 
+                data: Sequelize.literal(`DATE(data) = DATE('${data}')`),
+                hora: Sequelize.literal(`TIME(hora) = TIME('${hora}')`),
+                id_paciente: paciente.id_user
+            } 
+        });
+        
+        if (existingConsultaPaciente) {
+            return res.status(400).json({message: "Consulta já existe para este paciente na data e hora especificadas"});
         }
 
         const newConsulta = {
