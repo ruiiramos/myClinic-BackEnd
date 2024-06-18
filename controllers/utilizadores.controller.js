@@ -6,6 +6,7 @@ const Genero = db.genero
 const sistSaude = db.sistema_de_saude
 const userCodes = db.user_codes
 const userTokens = db.user_tokens
+const codPostal = db.codigo_postal
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -318,7 +319,8 @@ exports.createMedico = async (req, res) => {
                         .then(result => {
                             sendVerificationEmail(result.id_user, result.email, res);
                             res.status(201).json({
-                                message: `${tipo} criado. Por favor confirme o seu email.`
+                                message: `${tipo} criado. Por favor confirme o seu email.`,
+                                id_user: result.id_user
                             });
                         })
                         .catch(err => {
@@ -348,25 +350,25 @@ exports.createPaciente = async (req, res) => {
         const id_genero = generoMap[genero];
         const id_sistema_saude = sistemaSaudeMap[sistema_saude];
 
-        if (!nome || !n_utente || !email || !password || !data_nascimento || !contacto || !cod_postal || !id_genero)
-            return res.status(400).json({message: "Todos os campos são obrigatórios"})
+        if (!nome || !n_utente || !email || !password || !data_nascimento || !contacto || !cod_postal || !id_genero) {
+            return res.status(400).json({message: "Todos os campos são obrigatórios"});
+        }
 
         const pacienteData = await Utilizador.findOne({ where: { n_utente: n_utente } });
 
+        let codigoPostalData = await codPostal.findOne({ where: { cod_postal: cod_postal } });
+        if (!codigoPostalData) {
+            codigoPostalData = await codPostal.create({ cod_postal: cod_postal });
+        }
+
         if (pacienteData) {
-            return res.status(400).json({
-                message: "Paciente já existe"
-            });
+            return res.status(400).json({ message: "Paciente já existe" });
         } else if (!sistema_saude || !id_sistema_saude) {
-            return res.status(400).json({
-                success: false, message: "Sistema de saúde inválido"
-            });
+            return res.status(400).json({ success: false, message: "Sistema de saúde inválido" });
         } else {
-            bcrypt.hash(password, 10, (err, hash) => {
+            bcrypt.hash(password, 10, async (err, hash) => {
                 if (err) {
-                    return res.status(500).json({
-                        error: err
-                    });
+                    return res.status(500).json({ error: err });
                 } else {
                     const newPaciente = {
                         nome: nome,
@@ -380,26 +382,17 @@ exports.createPaciente = async (req, res) => {
                         id_genero: id_genero,
                         id_sistema_saude: id_sistema_saude,
                     };
-                    Utilizador.create(newPaciente)
-                        .then(async result => {
-                            try {
-                                await sendVerificationEmail(result.id_user, email, res);
-                                res.status(201).json({
-                                    message: "Paciente criado. Por favor confirme o seu email"
-                            });
-                            } catch (err) {
-                                console.log(err);
-                                res.status(500).json({
-                                    error: err.message
-                                });
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            res.status(500).json({
-                                error: err.message
-                            });
+                    try {
+                        const result = await Utilizador.create(newPaciente);
+                        await sendVerificationEmail(result.id_user, email, res);
+                        res.status(201).json({
+                            message: "Paciente criado. Por favor confirme o seu email",
+                            id_user: result.id_user
                         });
+                    } catch (err) {
+                        console.log(err);
+                        res.status(500).json({ error: err.message });
+                    }
                 }
             });
         }
@@ -839,7 +832,7 @@ exports.forgotPassword = async (req, res) => {
 
         const token = crypto.randomBytes(Math.ceil(128 / 2)).toString('hex').slice(0, 128);
 
-        const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${token}`
+        const resetUrl = `${req.protocol}://localhost:5173/reset-password/${token}`
 
         const emailTemplate = fs.readFileSync('./html/email_forgot_password.html', 'utf8');
 

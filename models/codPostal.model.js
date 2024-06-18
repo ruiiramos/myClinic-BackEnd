@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         localidade: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         }
     }, {
         tableName: 'codigo_postal',
