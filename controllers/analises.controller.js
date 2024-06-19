@@ -133,7 +133,7 @@ exports.update = async (req, res) => {
     };
 };
 
-exports.delete = async (req, res) => {
+exports.deleteAnalise = async (req, res) => {
     try {
         const analise = await Analise.findByPk(req.params.id);
 

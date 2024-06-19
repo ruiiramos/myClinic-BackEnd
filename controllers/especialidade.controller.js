@@ -104,7 +104,7 @@ exports.create = async (req, res) => {
     }
 };
 
-exports.delete = async (req, res) => {
+exports.deleteEspecialidade = async (req, res) => {
     try {
         const especialidade = await Especialidade.findByPk(req.params.id);
 

@@ -157,7 +157,7 @@ exports.update = async (req, res) => {
     };
 };
 
-exports.delete = async (req, res) => {
+exports.deleteExame = async (req, res) => {
     try {
         const exame = await Exame.findByPk(req.params.id);
 

@@ -14,7 +14,7 @@ router.route('/')
 router.route('/:id')
     .get(checkAuth, consultasController.findOne) // PROTECTED (user only)
     .patch(checkAuth, consultasController.update) // PROTECTED (user only)
-    .delete(checkAuth, consultasController.delete) // PROTECTED (user only)
+    .delete(checkAuth, consultasController.deleteConsulta) // PROTECTED (user only)
 
 router.route('/paciente/:id')
     .get(checkAuth, consultasController.findByPaciente) // PROTECTED (user only)
