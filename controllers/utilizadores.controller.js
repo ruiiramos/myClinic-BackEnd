@@ -412,7 +412,7 @@ exports.loginMedicos = (req, res, next) => {
 
     Utilizador.findOne({ where: { email: email } })
         .then(utilizador => {
-            if (!utilizador || utilizador.tipo !== 'medico' && utilizador.tipo !== 'admin') {
+            if (!utilizador || utilizador.tipo !== 'medico') {
                 return res.status(401).json({
                     message: "Médico não encontrado"
                 });
@@ -464,7 +464,7 @@ exports.loginPacientes = (req, res, next) => {
 
     Utilizador.findOne({ where: { email: email } })
         .then(utilizador => {
-            if (!utilizador || utilizador.tipo !== 'paciente') {
+            if (!utilizador || utilizador.tipo !== 'paciente' && utilizador.tipo !== 'admin') {
                 return res.status(401).json({
                     message: "Paciente não encontrado"
                 });
@@ -481,7 +481,8 @@ exports.loginPacientes = (req, res, next) => {
                     const token = jwt.sign(
                         {
                             email: utilizador.email,
-                            userId: utilizador.dataValues.id_user
+                            userId: utilizador._id,
+                            tipo: utilizador.tipo
                         },
                         process.env.JWT_KEY,
                         {
