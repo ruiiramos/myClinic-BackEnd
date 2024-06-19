@@ -493,7 +493,8 @@ exports.loginPacientes = (req, res, next) => {
                     return res.status(200).json({
                         message: "Authentication successful",
                         token: token,
-                        nome: utilizador.nome
+                        nome: utilizador.nome,
+                        tipo: utilizador.tipo
                     });
                 }
 
