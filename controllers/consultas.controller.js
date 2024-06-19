@@ -252,7 +252,7 @@ exports.update = async (req, res) => {
     };
 };
 
-exports.delete = async (req, res) => {
+exports.deleteConsulta = async (req, res) => {
     try {
         const consulta = await Consulta.findByPk(req.params.id);
 
