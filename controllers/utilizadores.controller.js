@@ -93,7 +93,7 @@ exports.findAllPacientes = async (req, res) => {
 exports.findCurrent = async (req, res) => {
     try {
         const userId = req.userData.userId;
-        console.log(`User ID: ${userId}`);
+        //console.log(`User ID: ${userId}`);
 
         let user = await Utilizador.findByPk(userId, {
             attributes: { exclude: ['id_genero', 'id_sistema_saude', 'id_especialidade'] },
@@ -113,7 +113,7 @@ exports.findCurrent = async (req, res) => {
                 }
             ]
         });
-        console.log(`User: ${JSON.stringify(user)}`);
+        //console.log(`User: ${JSON.stringify(user)}`);
 
         if (!user) {
             return res.status(404).json({
@@ -296,7 +296,7 @@ exports.createMedico = async (req, res) => {
 
         if (tipo === 'Médico' && (!id_especialidade || !especialidade)) {
             return res.status(400).json({
-                success: false, message: `Especialidade with ID ${id_especialidade} doesn't exist.`
+                success: false, message: `Especialidade ${especialidade} doesn't exist.`
             });
         } else {
             bcrypt.hash(password, 10, (err, hash) => {
@@ -426,7 +426,7 @@ exports.loginMedicos = (req, res, next) => {
                 }
 
                 if (result) {
-                    console.log(utilizador);
+                    //console.log(utilizador);
                     const token = jwt.sign(
                         {
                             email: utilizador.email,

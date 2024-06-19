@@ -78,7 +78,6 @@ exports.create = async (req, res) => {
                 res.status(201).json({
                     success: true,
                     message: "Análise criada",
-                    data: result
                 });
             })
             .catch(err => {

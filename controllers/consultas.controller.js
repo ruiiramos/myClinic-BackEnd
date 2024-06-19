@@ -137,6 +137,15 @@ exports.create = async (req, res) => {
         if (!data || !hora || !preco_consulta || !nome_medico || !nome_paciente)
             return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
+        const consultaDate = new Date(data);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        currentDate.setDate(currentDate.getDate() + 5);
+
+        if (consultaDate <= currentDate) {
+            return res.status(400).json({message: "A data da consulta deve ser pelo menos 5 dias após a data atual"});
+        }
+
         const medico = await Utilizador.findOne({ where: { nome: nome_medico, tipo: 'medico' } });
         const paciente = await Utilizador.findOne({ where: { nome: nome_paciente, tipo: 'paciente' } });
 

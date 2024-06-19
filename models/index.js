@@ -186,11 +186,11 @@ db.exame.belongsTo(db.especialidade, {
 });
 
 // 1 nome_exame : N exames
-db.nome_exame.hasMany(db.exame, {
-    foreignKey: "id_exame"
+db.exame.hasMany(db.nome_exame, {
+    foreignKey: "nome_exame"
 });
-db.exame.belongsTo(db.nome_exame, {
-    foreignKey: "id_exame"
+db.nome_exame.belongsTo(db.exame, {
+    foreignKey: "nome_exame"
 });
 
 // 1 nome_analise : N analises
@@ -227,7 +227,7 @@ db.medicamento_prescricao.belongsTo(db.medicamento, {
     foreignKey: "id_medicamento"
 });
 
-/* // // optionally: SYNC
+/*  // // optionally: SYNC
     (async () => {
     try {
         // await sequelize.sync({ force: true }); // creates tables, dropping them first if they already existed

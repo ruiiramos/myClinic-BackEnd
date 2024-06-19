@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
                 },
             }
         },
+        nome_exame: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            references: {
+                model: 'nome_exame',
+                key: 'nome_exame'
+            }
+        },
         id_consulta: {
             type: DataTypes.INTEGER,
             references: {
@@ -41,13 +49,6 @@ module.exports = (sequelize, DataTypes) => {
             references: {
                 model: 'especialidade',
                 key: 'id_especialidade'
-            }
-        },
-        id_nome_exame: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: 'nome_exame',
-                key: 'id_exame'
             }
         },
     },

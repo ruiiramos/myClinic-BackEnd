@@ -9,7 +9,7 @@ let router = express.Router();
 
 router.route('/')
     .get(especialidadeController.findAll) // PUBLIC
-    .post(checkAuth, especialidadeController.create); // PROTECTED (admin only)
+    .post(checkAdmin, checkAuth, especialidadeController.create); // PROTECTED (admin only)
 
 router.route('/:id')
     .get(checkAuth, especialidadeController.findOne) // PROTECTED (user only)

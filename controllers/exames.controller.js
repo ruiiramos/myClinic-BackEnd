@@ -1,5 +1,6 @@
 const db = require("../models/index.js")
 const Exame = db.exame;
+const nomeExame = db.nome_exame
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -37,7 +38,7 @@ exports.findOne = async (req, res) => {
         } else {
             return res.status(404).json({
                 success: false,
-                message: 'exame não encontrada.'
+                message: 'Exame não encontrado.'
             });
         }
     } catch (error) {
@@ -59,19 +60,31 @@ exports.findOne = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { data, hora, id_consulta, id_especialidade, id_nome_exame } = req.body;
+        const { data, hora, id_consulta, especialidade, nome_exame } = req.body;
     
-        if (!data || !hora || !id_consulta || !id_especialidade || !id_nome_exame) {
+        if (!data || !hora || !id_consulta || !especialidade || !nome_exame) {
             return res.status(400).json({
                 message: "Todos os campos são obrigatórios!"
             });
         }
-    
-        const existingExame = await Exame.findOne({ where: { nome_exame: nome_exame } });
+
+        const especialidadeMap = { 'Cardiologia': 1, 'Dermatologia': 2, 'Pediatria': 3, 'Endocrinologia': 4, 'Estomatologia': 5, 'Gastrenterologia': 6, 'Ginecologia': 7, 'Hematologia': 8, 'Medicina Geral': 9, 'Nefrologia': 10, 'Neurologia': 11, 'Oftalmologia': 12, 'Ortopedia': 13, 'Otorrinolaringologia': 14, 'Psiquiatria': 15, 'Radiologia': 16, 'Reumatologia': 17, 'Urologia': 18 };
+        const id_especialidade = especialidadeMap[especialidade];
+
+        let nomeExameData = await nomeExame.findOne({ where: { nome_exame: nome_exame } });
+        if (!nomeExameData) {
+            nomeExameData = await nomeExame.create({ nome_exame: nome_exame });
+        }
+
+        let existingExame = await Exame.findOne({ where: { nome_exame: nome_exame} });
     
         if (existingExame) {
             return res.status(400).json({
-                message: "Especialidade já existe"
+                message: "Exame já existe"
+            });
+        } else if (!id_especialidade || !especialidade) {
+            return res.status(400).json({
+                success: false, message: `Especialidade ${especialidade} doesn't exist.`
             });
         } else {
             const newExame = {
@@ -79,7 +92,7 @@ exports.create = async (req, res) => {
                 hora: hora,
                 id_consulta: id_consulta,
                 id_especialidade: id_especialidade,
-                id_nome_exame: id_nome_exame
+                nome_exame: nome_exame
             };
     
             Exame.create(newExame)
