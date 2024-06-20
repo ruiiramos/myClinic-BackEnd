@@ -28,7 +28,7 @@ exports.findAllMedicos = async (req, res) => {
     try {
         let medicos = await Utilizador.findAll({
             where: { tipo: 'medico' },
-            attributes: ['nome', 'email', 'cedula', 'imagem'],
+            attributes: ['id_user','nome', 'email', 'cedula', 'imagem'],
             include: [
                 {
                     model: Genero,
@@ -834,7 +834,7 @@ exports.forgotPassword = async (req, res) => {
 
         const token = crypto.randomBytes(Math.ceil(128 / 2)).toString('hex').slice(0, 128);
 
-        const resetUrl = `${req.protocol}://localhost:5173/reset-password/${token}`
+        const resetUrl = `${req.protocol}://localhost:5173/resetpassword/${token}`
 
         const emailTemplate = fs.readFileSync('./html/email_forgot_password.html', 'utf8');
 

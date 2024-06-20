@@ -1,6 +1,6 @@
 const db = require("../models/index.js");
 const Especialidade = db.especialidade;
-const Medico = db.medico;
+const Utilizador = db.utilizador;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -114,7 +114,7 @@ exports.deleteEspecialidade = async (req, res) => {
             });
         }
 
-        const consultas = await Medico.findOne({
+        const consultas = await Utilizador.findOne({
             where: { 
                 id_especialidade: especialidade.id_especialidade
             }

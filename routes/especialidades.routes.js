@@ -9,11 +9,11 @@ let router = express.Router();
 
 router.route('/')
     .get(especialidadeController.findAll) // PUBLIC
-    .post(checkAdmin, checkAuth, especialidadeController.create); // PROTECTED (admin only)
+    .post(checkAuth, checkAdmin, especialidadeController.create); // PROTECTED (admin only)
 
 router.route('/:id')
     .get(checkAuth, especialidadeController.findOne) // PROTECTED (user only)
-    .delete(checkAuth, especialidadeController.deleteEspecialidade) // PROTECTED (admin only)
+    .delete(checkAuth, checkAdmin, especialidadeController.deleteEspecialidade) // PROTECTED (admin only)
 
 router.all('*', function (req, res) {
     res.status(400).json({ success: false, message: 'myClinic: what???'  });
