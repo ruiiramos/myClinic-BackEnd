@@ -74,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
         imagem: {
             type: DataTypes.STRING(255),
             allowNull: true,
+            defaultValue: 'https://res.cloudinary.com/djcedpyhp/image/upload/v1718913472/avatar_user.jpg'
         },
         cod_postal: {
             type: DataTypes.STRING(10),

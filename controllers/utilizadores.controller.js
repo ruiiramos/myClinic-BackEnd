@@ -61,7 +61,7 @@ exports.findAllPacientes = async (req, res) => {
     try {
         let pacientes = await Utilizador.findAll({
             where: { tipo: 'paciente' },
-            attributes: ['nome', 'email', 'data_nascimento', 'n_utente', 'contacto', 'imagem', 'cod_postal'],
+            attributes: ['id_user','nome', 'email', 'data_nascimento', 'n_utente', 'contacto', 'imagem', 'cod_postal'],
             include: [
                 {
                     model: Genero,
@@ -269,7 +269,7 @@ exports.findMedicosByEspecialidade = async (req, res) => {
 
 exports.createMedico = async (req, res) => {
     try {
-        const { nome, cedula, email, password, tipo, imagem, genero, especialidade } = req.body;
+        const { nome, cedula, email, password, tipo, genero, especialidade } = req.body;
 
         const generoMap = { 'Masculino': 1, 'Feminino': 2 };
         const especialidadeMap = { 'Cardiologia': 1, 'Dermatologia': 2, 'Pediatria': 3, 'Endocrinologia': 4, 'Estomatologia': 5, 'Gastrenterologia': 6, 'Ginecologia': 7, 'Hematologia': 8, 'Medicina Geral': 9, 'Nefrologia': 10, 'Neurologia': 11, 'Oftalmologia': 12, 'Ortopedia': 13, 'Otorrinolaringologia': 14, 'Psiquiatria': 15, 'Radiologia': 16, 'Reumatologia': 17, 'Urologia': 18 };
@@ -277,7 +277,7 @@ exports.createMedico = async (req, res) => {
         const id_genero = generoMap[genero];
 
         if (tipo === 'Médico') {
-            if (!nome || !cedula || !email || !password || !imagem || !id_genero || !especialidade)
+            if (!nome || !cedula || !email || !password || !id_genero || !especialidade)
                 return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
             const medicoData = await Utilizador.findOne({ where: { cedula: cedula } });
@@ -312,12 +312,11 @@ exports.createMedico = async (req, res) => {
                         email: email,
                         tipo: tipo,
                         id_genero: id_genero,
-                        imagem: imagem,
-                        id_especialidade: id_especialidade
+                        id_especialidade: id_especialidade,
+                        verified: true
                     };
                     Utilizador.create(newUser)
                         .then(result => {
-                            sendVerificationEmail(result.id_user, result.email, res);
                             res.status(201).json({
                                 message: `${tipo} criado. Por favor confirme o seu email.`,
                                 id_user: result.id_user
@@ -472,11 +471,12 @@ exports.loginPacientes = (req, res, next) => {
 
             bcrypt.compare(password, utilizador.password, (err, result) => {
                 if (err) {
-                    return res.status(401).json({
-                        message: "Password inválida"
+                    console.log(err);
+                    return res.status(500).json({
+                        error: err
                     });
                 }
-
+            
                 if (result) {
                     const token = jwt.sign(
                         {
@@ -489,18 +489,18 @@ exports.loginPacientes = (req, res, next) => {
                             expiresIn: "1h"
                         }
                     );
-
+            
                     return res.status(200).json({
                         message: "Authentication successful",
                         token: token,
                         nome: utilizador.nome,
                         tipo: utilizador.tipo
                     });
+                } else {
+                    return res.status(401).json({
+                        message: "Password inválida"
+                    });
                 }
-
-                res.status(401).json({
-                    message: "Authentication failed"
-                });
             });
         })
         .catch(err => {
