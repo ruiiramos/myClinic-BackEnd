@@ -282,6 +282,8 @@ exports.createMedico = async (req, res) => {
 
             const medicoData = await Utilizador.findOne({ where: { cedula: cedula } });
 
+            const emailData = await Utilizador.findOne({ where: { email: email } });
+
             if (medicoData) {
                 return res.status(400).json({
                     message: "Médico já existe"
@@ -298,6 +300,8 @@ exports.createMedico = async (req, res) => {
             return res.status(400).json({
                 success: false, message: `Especialidade with ID ${id_especialidade} doesn't exist.`
             });
+        } else if (emailData) {
+            return res.status(400).json({ message: "Email já existe" });
         } else {
             bcrypt.hash(password, 10, (err, hash) => {
                 if (err) {
