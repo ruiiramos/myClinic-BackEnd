@@ -8,7 +8,7 @@ const checkAdmin = require("../middleware/check-admin");
 let router = express.Router();
 
 router.route('/')
-    .get(especialidadeController.findAll) // PUBLIC
+    .get(checkAuth, especialidadeController.findAll) // PUBLIC
     .post(checkAuth, checkAdmin, especialidadeController.create); // PROTECTED (admin only)
 
 router.route('/:id')

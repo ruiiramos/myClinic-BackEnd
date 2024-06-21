@@ -29,7 +29,7 @@ router.route('/medicos/:id')
 router.route('/pacientes/:id')
     .get(checkAuth, utilizadoresController.findOneMedico) // PROTECTED (user only)
     .patch(checkAuth, utilizadoresController.updatePacientes) // PROTECTED (user only)
-    .delete(checkAuth, utilizadoresController.deletePacientes) // PROTECTED (user only)
+    .delete(checkAuth, checkAdmin, utilizadoresController.deletePacientes) // PROTECTED (user only)
 
 router.route('/login/medicos')
     .post(utilizadoresController.loginMedicos) // PUBLIC

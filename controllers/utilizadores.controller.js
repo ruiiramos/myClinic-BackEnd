@@ -276,19 +276,19 @@ exports.createMedico = async (req, res) => {
         const id_especialidade = especialidadeMap[especialidade];
         const id_genero = generoMap[genero];
 
+        const emailData = await Utilizador.findOne({ where: { email: email } });
+
         if (tipo === 'Médico') {
             if (!nome || !cedula || !email || !password || !id_genero || !especialidade)
                 return res.status(400).json({message: "Todos os campos são obrigatórios"})
 
-            const medicoData = await Utilizador.findOne({ where: { cedula: cedula } });
+        const medicoData = await Utilizador.findOne({ where: { cedula: cedula } });
 
-            const emailData = await Utilizador.findOne({ where: { email: email } });
-
-            if (medicoData) {
-                return res.status(400).json({
-                    message: "Médico já existe"
-                });
-            }
+        if (medicoData) {
+            return res.status(400).json({
+                message: "Médico já existe"
+            });
+        }
         } else if (tipo === 'admin') {
             if (!nome || !email || !password)
                 return res.status(400).json({message: "Todos os campos são obrigatórios"})
