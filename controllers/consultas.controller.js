@@ -4,6 +4,7 @@ const Consulta = db.consulta;
 const Exame = db.exame;
 const Analise = db.analise;
 const Utilizador = db.utilizador;
+const sequelize = db.sequelize;
 
 //"Op" necessary for LIKE operator
 const { Op, ValidationError } = require('sequelize');
@@ -12,6 +13,7 @@ const { Op, ValidationError } = require('sequelize');
 exports.findAll = async (req, res) => {
     try {
         let consultas = await Consulta.findAll() 
+        
         
         // Send response with pagination and data
         res.status(200).json({ 
@@ -66,8 +68,22 @@ exports.findOne = async (req, res) => {
 exports.findByPaciente = async (req, res) => {
     try {
         const id_paciente = req.params.id;
+        const currentDate = new Date();
         const consultas = await Consulta.findAll({
-            where: { id_paciente: id_paciente },
+            where: { 
+                id_paciente: id_paciente,
+                [Op.and]: [
+                    sequelize.where(
+                        sequelize.fn(
+                            'STR_TO_DATE',
+                            sequelize.fn('CONCAT', sequelize.col('data'), ' ', sequelize.col('hora')),
+                            '%Y-%m-%d %H:%i:%s'
+                        ),
+                        '>=',
+                        currentDate.toISOString()
+                    )
+                ]
+            },
             exclude: ['id_paciente', 'id_medico'],
             include: [
                 {
