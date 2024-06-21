@@ -588,8 +588,12 @@ exports.updatePacientes = async (req, res) => {
             });
         }
 
-        if (req.body.contacto.length !== 9 || isNaN(req.body.contacto)) {
+        if (req.body.n_utente.length !== 9 || isNaN(req.body.n_utente)) {
             return res.status(400).json({message: "O nº utente deve ter exatamente 9 dígitos"});
+        }
+
+        if (req.body.contacto.length !== 9 || isNaN(req.body.contacto)) {
+            return res.status(400).json({message: "O contacto deve ter exatamente 9 dígitos"});
         }
 
         const postalCodePattern = /^\d{4}-\d{3}$/;
