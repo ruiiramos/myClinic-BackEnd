@@ -364,6 +364,11 @@ exports.createPaciente = async (req, res) => {
             return res.status(400).json({message: "O nº utente deve ter exatamente 9 dígitos"});
         }
 
+        const postalCodePattern = /^\d{4}-\d{3}$/;
+        if (!postalCodePattern.test(cod_postal)) {
+            return res.status(400).json({message: "O código postal deve estar no formato 'XXXX-XXX'"});
+        }
+
         if (contacto.length !== 9 || isNaN(contacto)) {
             return res.status(400).json({message: "O contacto deve ter exatamente 9 dígitos"});
         }
@@ -585,6 +590,11 @@ exports.updatePacientes = async (req, res) => {
 
         if (req.body.contacto.length !== 9 || isNaN(req.body.contacto)) {
             return res.status(400).json({message: "O nº utente deve ter exatamente 9 dígitos"});
+        }
+
+        const postalCodePattern = /^\d{4}-\d{3}$/;
+        if (!postalCodePattern.test(req.body.cod_postal)) {
+            return res.status(400).json({message: "O código postal deve estar no formato 'XXXX-XXX'"});
         }
 
         if (req.body.password) {
