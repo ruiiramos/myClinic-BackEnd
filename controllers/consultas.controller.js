@@ -140,10 +140,10 @@ exports.create = async (req, res) => {
         const consultaDate = new Date(data);
         const currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0);
-        currentDate.setDate(currentDate.getDate() + 5);
+        currentDate.setDate(currentDate.getDate() + 1);
 
         if (consultaDate <= currentDate) {
-            return res.status(400).json({message: "A data da consulta deve ser pelo menos 5 dias após a data atual"});
+            return res.status(400).json({message: "A data da consulta deve ser marcada para o dia seguinte!"});
         }
 
         const medico = await Utilizador.findOne({ where: { nome: nome_medico, tipo: 'medico' } });
