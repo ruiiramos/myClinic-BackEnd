@@ -581,6 +581,13 @@ exports.updatePacientes = async (req, res) => {
             req.body.id_sistema_saude = sistemaSaudeMap[req.body.sistema_saude];
         }
 
+        if (req.body.cod_postal) {
+            let codigoPostalData = await codPostal.findOne({ where: { cod_postal: req.body.cod_postal } });
+            if (!codigoPostalData) {
+                codigoPostalData = await codPostal.create({ cod_postal: req.body.cod_postal });
+            }
+        }
+
         let affectedRows = await paciente.update(req.body);
 
         if(affectedRows[0] === 0){
@@ -596,6 +603,7 @@ exports.updatePacientes = async (req, res) => {
         });
     }
     catch (err) {
+        console.error(err);
         if (err instanceof ValidationError)
             return res.status(400).json({ 
                 success: false, 
