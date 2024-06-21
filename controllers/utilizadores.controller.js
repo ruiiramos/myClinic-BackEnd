@@ -353,6 +353,10 @@ exports.createPaciente = async (req, res) => {
             return res.status(400).json({message: "Todos os campos são obrigatórios"});
         }
 
+        if (n_utente.length !== 9 || isNaN(n_utente)) {
+            return res.status(400).json({message: "O nº utente deve ter exatamente 9 dígitos"});
+        }
+
         const pacienteData = await Utilizador.findOne({ where: { n_utente: n_utente } });
 
         let codigoPostalData = await codPostal.findOne({ where: { cod_postal: cod_postal } });
