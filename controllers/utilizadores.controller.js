@@ -357,6 +357,10 @@ exports.createPaciente = async (req, res) => {
             return res.status(400).json({message: "O nº utente deve ter exatamente 9 dígitos"});
         }
 
+        if (contacto.length !== 9 || isNaN(contacto)) {
+            return res.status(400).json({message: "O contacto deve ter exatamente 9 dígitos"});
+        }
+
         const pacienteData = await Utilizador.findOne({ where: { n_utente: n_utente } });
 
         let codigoPostalData = await codPostal.findOne({ where: { cod_postal: cod_postal } });
@@ -566,6 +570,10 @@ exports.updatePacientes = async (req, res) => {
             return res.status(404).json({
                 success: false, msg: `Paciente with ID ${req.params.id} not found.`
             });
+        }
+
+        if (req.body.contacto.length !== 9 || isNaN(req.body.contacto)) {
+            return res.status(400).json({message: "O nº utente deve ter exatamente 9 dígitos"});
         }
 
         if (req.body.password) {
