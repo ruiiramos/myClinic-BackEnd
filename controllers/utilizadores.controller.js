@@ -353,6 +353,13 @@ exports.createPaciente = async (req, res) => {
             return res.status(400).json({message: "Todos os campos são obrigatórios"});
         }
 
+        const birthDate = new Date(data_nascimento);
+        const currentDate = new Date();
+        const age = currentDate.getFullYear() - birthDate.getFullYear();
+        if (age < 18 || (age === 18 && (currentDate.getMonth() < birthDate.getMonth() || (currentDate.getMonth() === birthDate.getMonth() && currentDate.getDate() < birthDate.getDate())))) {
+            return res.status(400).json({message: "O paciente deve ter pelo menos 18 anos"});
+        }
+
         if (n_utente.length !== 9 || isNaN(n_utente)) {
             return res.status(400).json({message: "O nº utente deve ter exatamente 9 dígitos"});
         }
@@ -363,6 +370,8 @@ exports.createPaciente = async (req, res) => {
 
         const pacienteData = await Utilizador.findOne({ where: { n_utente: n_utente } });
 
+        const emailData = await Utilizador.findOne({ where: { email: email } });
+
         let codigoPostalData = await codPostal.findOne({ where: { cod_postal: cod_postal } });
         if (!codigoPostalData) {
             codigoPostalData = await codPostal.create({ cod_postal: cod_postal });
@@ -370,6 +379,8 @@ exports.createPaciente = async (req, res) => {
 
         if (pacienteData) {
             return res.status(400).json({ message: "Paciente já existe" });
+        } else if (emailData) {
+            return res.status(400).json({ message: "Email já existe" });
         } else if (!sistema_saude || !id_sistema_saude) {
             return res.status(400).json({ success: false, message: "Sistema de saúde inválido" });
         } else {
