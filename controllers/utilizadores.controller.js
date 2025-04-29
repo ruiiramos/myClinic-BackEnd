@@ -16,13 +16,13 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer')
 
-let transporter = nodemailer.createTransport({
-    service: 'outlook',
+const transporter = nodemailer.createTransport({
+    service: "SendGrid",
     auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
+      user: "apikey",
+      pass: process.env.SENDGRID_API_KEY
     }
-})
+});
 
 exports.findAllMedicos = async (req, res) => {
     try {
