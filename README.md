@@ -62,9 +62,10 @@ The project includes:
 
 This project was developed within the scope of an academic assignment and serves as a practical application of backend development, REST API design, database management and software testing concepts.
 
-## Author
+## Authors
 
-**Rui Ramos**
+- Nuno Meira
+- Rui Ramos
 
 - GitHub: https://github.com/ruiiramos
 - LinkedIn: https://www.linkedin.com/in/rui-ramos
